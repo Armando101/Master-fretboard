@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Session Summary - Guitar Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#005236",
+              "surface-dim": "#131313",
+              "on-tertiary-container": "#003220",
+              "surface": "#131313",
+              "on-error": "#690005",
+              "primary-fixed-dim": "#9ecaff",
+              "surface-container-highest": "#353535",
+              "on-secondary-container": "#6d5000",
+              "on-secondary": "#402d00",
+              "on-surface": "#e5e2e1",
+              "surface-container": "#20201f",
+              "secondary-fixed-dim": "#fbbc00",
+              "on-tertiary": "#003824",
+              "on-primary-fixed-variant": "#00497d",
+              "error-container": "#93000a",
+              "primary-fixed": "#d1e4ff",
+              "primary-container": "#2196f3",
+              "tertiary": "#4edea3",
+              "surface-container-low": "#1c1b1b",
+              "tertiary-container": "#00a673",
+              "on-secondary-fixed": "#261a00",
+              "on-primary-container": "#002c4f",
+              "on-primary-fixed": "#001d36",
+              "on-error-container": "#ffdad6",
+              "primary": "#9ecaff",
+              "tertiary-fixed-dim": "#4edea3",
+              "background": "#131313",
+              "tertiary-fixed": "#6ffbbe",
+              "outline-variant": "#404752",
+              "outline": "#89919d",
+              "secondary-container": "#ffbf00",
+              "on-tertiary-fixed": "#002113",
+              "inverse-surface": "#e5e2e1",
+              "error": "#ffb4ab",
+              "surface-tint": "#9ecaff",
+              "on-secondary-fixed-variant": "#5c4300",
+              "surface-bright": "#393939",
+              "on-background": "#e5e2e1",
+              "secondary-fixed": "#ffdfa0",
+              "on-primary": "#003258",
+              "inverse-primary": "#0061a4",
+              "surface-container-lowest": "#0e0e0e",
+              "surface-container-high": "#2a2a2a",
+              "inverse-on-surface": "#313030",
+              "surface-variant": "#353535",
+              "secondary": "#ffe2ab",
+              "on-surface-variant": "#bfc7d4"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .custom-glass {
+        background: rgba(53, 53, 53, 0.6);
+        backdrop-filter: blur(20px);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#1c1b1b] flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#9ecaff] cursor-pointer" data-icon="menu">menu</span>
+<h1 class="font-['Space_Grotesk'] tracking-tighter text-xl font-bold text-[#9ecaff]">Guitar Atelier</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="User profile avatar" data-alt="Close-up portrait of a professional guitarist in a dimly lit studio environment with warm amber rim lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFCJ2mPJHIXdUe1c20SR69RKUBjGo4xZsEmeVuiTt4Ee97aglel0BMI0756i_j3VsSxgHiBjNLKPSJQsBfOloG8R5yBhmHdJHLwtic0CNCBX1zxAFsHbrxdZvX7X9-BY-Z-Qk8cJqAySqVUql6NSEB-B0BLgNqFhWg0L_v87U_es15YiIq6J7AWjPNYYqFcx33bKQuAq6bci_Z9MAIfcFwiye0G6hug1FtRAukHC7_rmHK0MByK04CzNfw-chRUFnvbeA3I1P_Th4"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Session Hero Section -->
+<section class="mb-12">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-2">
+<span class="font-label text-primary uppercase tracking-[0.2em] text-[10px] font-bold">Session Complete</span>
+<h2 class="font-headline text-display-lg text-5xl font-bold tracking-tight text-on-surface">Great Progress.</h2>
+</div>
+<div class="bg-surface-container-high p-6 rounded-xl border-l-4 border-primary">
+<p class="font-label text-outline text-xs uppercase tracking-widest mb-1">Overall Accuracy</p>
+<p class="font-headline text-4xl font-bold text-primary">Preguntas correctas: 15/20</p>
+</div>
+</div>
+</section>
+<!-- Interval Breakdown Grid -->
+<section class="space-y-4">
+<h3 class="font-headline text-xl font-medium text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="analytics">analytics</span>
+                Interval Breakdown
+            </h3>
+<div class="grid gap-3">
+<!-- Correct Item -->
+<div class="bg-surface-container-low p-5 rounded-lg flex items-center justify-between transition-colors hover:bg-surface-container">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-headline text-xl font-bold text-on-surface">2M</p>
+<p class="text-xs text-outline font-label tracking-wider uppercase">Major Second</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline text-2xl font-bold text-tertiary">2/2</p>
+<div class="w-24 h-1 bg-surface-container-highest rounded-full mt-1 overflow-hidden">
+<div class="bg-tertiary h-full w-full"></div>
+</div>
+</div>
+</div>
+<!-- Correct Item -->
+<div class="bg-surface-container-low p-5 rounded-lg flex items-center justify-between transition-colors hover:bg-surface-container">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-headline text-xl font-bold text-on-surface">P5</p>
+<p class="text-xs text-outline font-label tracking-wider uppercase">Perfect Fifth</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline text-2xl font-bold text-tertiary">8/8</p>
+<div class="w-24 h-1 bg-surface-container-highest rounded-full mt-1 overflow-hidden">
+<div class="bg-tertiary h-full w-full"></div>
+</div>
+</div>
+</div>
+<!-- Incorrect Item -->
+<div class="bg-surface-container-low p-5 rounded-lg flex items-center justify-between transition-colors hover:bg-surface-container border-l-2 border-error/30">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-error" data-icon="cancel" style="font-variation-settings: 'FILL' 1;">cancel</span>
+</div>
+<div>
+<p class="font-headline text-xl font-bold text-on-surface">3M</p>
+<p class="text-xs text-outline font-label tracking-wider uppercase">Major Third</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline text-2xl font-bold text-error">0/3</p>
+<div class="w-24 h-1 bg-surface-container-highest rounded-full mt-1 overflow-hidden">
+<div class="bg-error h-full w-0"></div>
+</div>
+</div>
+</div>
+<!-- Mixed Item -->
+<div class="bg-surface-container-low p-5 rounded-lg flex items-center justify-between transition-colors hover:bg-surface-container">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="info" style="font-variation-settings: 'FILL' 1;">info</span>
+</div>
+<div>
+<p class="font-headline text-xl font-bold text-on-surface">m7</p>
+<p class="text-xs text-outline font-label tracking-wider uppercase">Minor Seventh</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline text-2xl font-bold text-on-surface-variant">5/7</p>
+<div class="w-24 h-1 bg-surface-container-highest rounded-full mt-1 overflow-hidden">
+<div class="bg-primary h-full w-[71%]"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="mt-12 flex flex-col sm:flex-row gap-4">
+<button class="flex-1 py-4 rounded-md font-headline font-bold text-on-primary bg-gradient-to-br from-primary to-primary-container flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" data-icon="replay">replay</span>
+                Restart Session
+            </button>
+<button class="flex-1 py-4 rounded-md font-headline font-bold text-on-surface bg-surface-container-highest flex items-center justify-center gap-2 hover:bg-surface-bright active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+                Back to Menu
+            </button>
+</section>
+<!-- Achievement Teaser Card -->
+<div class="mt-8 p-6 rounded-xl bg-gradient-to-r from-secondary-container/10 to-transparent border border-outline-variant/15 flex items-center gap-6">
+<div class="hidden sm:block">
+<img alt="Trophy" class="w-16 h-16 opacity-80" data-alt="Stylized geometric 3D trophy icon with gold metallic texture and amber glow background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnU-nQpS-G1g6hSmecUOOHb1G9WzRxu02WL8t1-Mr9lhstvNMtXLm3UUcJtttoQZK9lCV_QmyCCUZJD7eo5Xv3_cEvSfh6gUdJNKWbfNFbTSLYzXcHLufeXUjwalLWvITELJQ3pkQZjO0OEBXihq8ueee0B7HH8zAGkrBf5UOx2Pp05M0HCvaC1B3nuyV99FB_9hD5jH_NIuYBfW8bNw1PzhKqoebCjXZeR8qxhk0CXpSP_Wfe_-08VqvSYnkIcPTAhPdFJzWNLbQ"/>
+</div>
+<div>
+<p class="text-secondary font-headline font-bold">New Milestone Near!</p>
+<p class="text-on-surface-variant text-sm mt-1">Practice 2 more sessions to unlock the "Interval Master" badge.</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#131313]/90 backdrop-blur-xl flex justify-around items-center pb-6 pt-3 px-8 z-50 border-t border-[#404752]/15 shadow-[0_-4px_32px_rgba(0,97,164,0.08)]">
+<div class="flex flex-col items-center justify-center text-[#ffe2ab] bg-[#ffbf00]/10 rounded-xl px-4 py-1 transition-all duration-300 ease-out">
+<span class="material-symbols-outlined" data-icon="fitness_center" style="font-variation-settings: 'FILL' 1;">fitness_center</span>
+<span class="font-['Manrope'] text-[10px] font-medium uppercase tracking-widest mt-1">Practice</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#353535] px-4 py-1 hover:text-[#9ecaff] transition-all">
+<span class="material-symbols-outlined" data-icon="library_music">library_music</span>
+<span class="font-['Manrope'] text-[10px] font-medium uppercase tracking-widest mt-1">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#353535] px-4 py-1 hover:text-[#9ecaff] transition-all">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Manrope'] text-[10px] font-medium uppercase tracking-widest mt-1">Progress</span>
+</div>
+</nav>
+</body></html>

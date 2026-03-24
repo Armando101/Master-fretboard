@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#005236",
+              "surface-dim": "#131313",
+              "on-tertiary-container": "#003220",
+              "surface": "#131313",
+              "on-error": "#690005",
+              "primary-fixed-dim": "#9ecaff",
+              "surface-container-highest": "#353535",
+              "on-secondary-container": "#6d5000",
+              "on-secondary": "#402d00",
+              "on-surface": "#e5e2e1",
+              "surface-container": "#20201f",
+              "secondary-fixed-dim": "#fbbc00",
+              "on-tertiary": "#003824",
+              "on-primary-fixed-variant": "#00497d",
+              "error-container": "#93000a",
+              "primary-fixed": "#d1e4ff",
+              "primary-container": "#2196f3",
+              "tertiary": "#4edea3",
+              "surface-container-low": "#1c1b1b",
+              "tertiary-container": "#00a673",
+              "on-secondary-fixed": "#261a00",
+              "on-primary-container": "#002c4f",
+              "on-primary-fixed": "#001d36",
+              "on-error-container": "#ffdad6",
+              "primary": "#9ecaff",
+              "tertiary-fixed-dim": "#4edea3",
+              "background": "#131313",
+              "tertiary-fixed": "#6ffbbe",
+              "outline-variant": "#404752",
+              "outline": "#89919d",
+              "secondary-container": "#ffbf00",
+              "on-tertiary-fixed": "#002113",
+              "inverse-surface": "#e5e2e1",
+              "error": "#ffb4ab",
+              "surface-tint": "#9ecaff",
+              "on-secondary-fixed-variant": "#5c4300",
+              "surface-bright": "#393939",
+              "on-background": "#e5e2e1",
+              "secondary-fixed": "#ffdfa0",
+              "on-primary": "#003258",
+              "inverse-primary": "#0061a4",
+              "surface-container-lowest": "#0e0e0e",
+              "surface-container-high": "#2a2a2a",
+              "inverse-on-surface": "#313030",
+              "surface-variant": "#353535",
+              "secondary": "#ffe2ab",
+              "on-surface-variant": "#bfc7d4"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .fretboard-scroll::-webkit-scrollbar {
+        height: 4px;
+      }
+      .fretboard-scroll::-webkit-scrollbar-track {
+        background: #131313;
+      }
+      .fretboard-scroll::-webkit-scrollbar-thumb {
+        background: #353535;
+        border-radius: 10px;
+      }
+      .fretboard-shadow {
+        box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#1c1b1b] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<button class="text-[#9ecaff] hover:bg-[#2a2a2a] transition-colors p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="text-xl font-bold tracking-tighter text-[#9ecaff] font-headline">Guitar Atelier</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Professional studio portrait of a musician in low light with subtle blue rim lighting on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHVUUmg1ZyXD7Joysm5yxpVbnPgo3TE_0a4oIqrLKTwOw8xJ8-JQ9mQoE-dZWG3_VNhpWY0-4TBUjD1Zjwpg5tYhLqXZ8MXPeLyspchjOH1q1kELf5alG9vYhGHUhbqOZQjemLxQ4Ll8grXFnbK7so4f8tUuAMX-jhBFCAjJId6JOLgrXXa2N2rvmVFtzQZgiNwEampxKK4SOIATrbnTQy_TggTGWUxL1LrlMVRKUzW8N4gahk5_7t1_zBF_qCmxd4AODci9_4mOs"/>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Instructions & Theory -->
+<div class="lg:col-span-4 flex flex-col gap-8 order-2 lg:order-1">
+<section class="bg-surface-container-low p-8 rounded-xl relative overflow-hidden">
+<div class="space-y-6">
+<div>
+<p class="font-headline text-label-md text-primary tracking-widest uppercase mb-1">Visual Fretboard Training</p>
+<h1 class="font-headline text-2xl font-bold leading-tight tracking-tight">Identificación de Intervalos</h1>
+</div>
+<div class="p-4 bg-surface-container rounded-lg border border-outline-variant/10">
+<p class="text-on-surface-variant text-sm">Localiza el intervalo solicitado en el mástil tomando como referencia la tónica indicada.</p>
+</div>
+<div class="flex flex-col gap-3">
+<button class="w-full py-4 px-6 bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-bold rounded-md flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+                            Verificar
+                        </button>
+<button class="w-full py-4 px-6 bg-surface-container-highest text-on-surface font-bold rounded-md flex items-center justify-center gap-2 border border-outline-variant/10 hover:bg-surface-bright transition-all">
+                            Siguiente pregunta
+                            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Progress Snapshot -->
+<section class="bg-surface-container-low p-6 rounded-xl">
+<h3 class="font-headline text-headline-sm mb-4">Tu Sesión</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Aciertos</p>
+<p class="text-2xl font-headline text-tertiary">12</p>
+</div>
+<div class="bg-surface-container p-4 rounded-lg">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Precisión</p>
+<p class="text-2xl font-headline text-primary">85%</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Interactive Fretboard -->
+<div class="lg:col-span-8 order-1 lg:order-2">
+<div class="bg-surface-container-low p-2 md:p-8 rounded-xl min-h-[500px] flex flex-col">
+<div class="flex justify-between items-center mb-8 px-4">
+<div class="flex flex-col gap-1">
+<h2 class="font-headline text-xl font-bold text-on-surface">Selecciona un intervalo de <span class="text-primary">3M</span></h2>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<span class="text-xs font-bold text-on-surface-variant uppercase">TÓNICA: C</span>
+</div>
+<div class="w-[1px] h-3 bg-outline-variant/30"></div>
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-xs text-on-surface-variant uppercase">SELECCIONADA</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline text-[10px] tracking-[0.2em] opacity-30 block">FRETBOARD MASTER</span>
+<span class="font-headline text-[10px] tracking-[0.2em] opacity-30">V.1.0</span>
+</div>
+</div>
+<!-- Fretboard Container (Style from SCREEN_4) -->
+<div class="overflow-x-auto fretboard-scroll pb-8">
+<div class="min-w-[1000px] bg-surface-container-low rounded-xl overflow-hidden relative fretboard-shadow p-0 border border-outline-variant/10">
+<!-- Fret Number Labels -->
+<div class="flex ml-12 border-b border-outline-variant/5">
+<div class="w-16 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">NUT</div>
+<div class="flex-grow flex">
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">1</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">2</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">3</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">4</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">5</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">6</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">7</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">8</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">9</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">10</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">11</div>
+<div class="w-20 h-8 flex items-center justify-center font-headline text-[10px] text-on-surface-variant/40">12</div>
+</div>
+</div>
+<!-- The Fretboard Strings -->
+<div class="relative py-4">
+<!-- Background Strings -->
+<div class="absolute inset-0 flex flex-col justify-between py-10 pointer-events-none px-12">
+<div class="h-[1px] w-full bg-on-surface-variant/20"></div>
+<div class="h-[1px] w-full bg-on-surface-variant/20"></div>
+<div class="h-[1.5px] w-full bg-on-surface-variant/30"></div>
+<div class="h-[2px] w-full bg-on-surface-variant/30"></div>
+<div class="h-[2.5px] w-full bg-on-surface-variant/40"></div>
+<div class="h-[3px] w-full bg-on-surface-variant/40"></div>
+</div>
+<!-- Fret Wires -->
+<div class="absolute inset-0 flex ml-12 pointer-events-none">
+<div class="w-16 h-full border-r-[3px] border-surface-bright/50"></div>
+<div class="flex-grow flex">
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+<div class="w-20 h-full border-r border-surface-bright/40"></div>
+</div>
+</div>
+<!-- Fret Inlays (Dots) -->
+<div class="absolute inset-0 flex ml-12 pointer-events-none items-center">
+<div class="flex-grow flex">
+<div class="w-20"></div>
+<div class="w-20"></div>
+<div class="w-20 flex justify-center"><div class="w-2 h-2 rounded-full bg-on-surface/5"></div></div>
+<div class="w-20"></div>
+<div class="w-20 flex justify-center"><div class="w-2 h-2 rounded-full bg-on-surface/5"></div></div>
+<div class="w-20"></div>
+<div class="w-20 flex justify-center"><div class="w-2 h-2 rounded-full bg-on-surface/5"></div></div>
+<div class="w-20"></div>
+<div class="w-20 flex justify-center"><div class="w-2 h-2 rounded-full bg-on-surface/5"></div></div>
+<div class="w-20"></div>
+<div class="w-20"></div>
+<div class="w-20 flex flex-col gap-8 justify-center items-center">
+<div class="w-2 h-2 rounded-full bg-on-surface/5"></div>
+<div class="w-2 h-2 rounded-full bg-on-surface/5"></div>
+</div>
+</div>
+</div>
+<!-- Note Interaction Grid -->
+<div class="relative z-10 flex flex-col gap-4 py-2">
+<!-- Example String Row (A String) -->
+<div class="flex items-center ml-12 h-8">
+<div class="w-16 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs font-bold text-transparent">A</div></div>
+<div class="flex-grow flex">
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-primary-container shadow-[0_0_15px_rgba(33,150,243,0.5)] flex items-center justify-center cursor-pointer transition-all text-xs font-bold text-on-primary-container">C</div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-error shadow-[0_0_15px_#ffb4ab] flex items-center justify-center cursor-pointer transition-all text-xs font-bold text-on-error">C#</div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-tertiary shadow-[0_0_15px_#4edea3] flex items-center justify-center cursor-pointer transition-all text-xs font-bold text-on-tertiary">E</div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+<div class="w-20 flex justify-center"><div class="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs"></div></div>
+</div>
+</div>
+<!-- Fill other 5 rows with empty cells for visualization symmetry -->
+<div class="flex items-center ml-12 h-8"><div class="w-16"></div><div class="flex-grow flex"><div class="w-20 h-8" v-for="i in 12"></div></div></div>
+<div class="flex items-center ml-12 h-8"><div class="w-16"></div><div class="flex-grow flex"><div class="w-20 h-8" v-for="i in 12"></div></div></div>
+<div class="flex items-center ml-12 h-8"><div class="w-16"></div><div class="flex-grow flex"><div class="w-20 h-8" v-for="i in 12"></div></div></div>
+<div class="flex items-center ml-12 h-8"><div class="w-16"></div><div class="flex-grow flex"><div class="w-20 h-8" v-for="i in 12"></div></div></div>
+<div class="flex items-center ml-12 h-8"><div class="w-16"></div><div class="flex-grow flex"><div class="w-20 h-8" v-for="i in 12"></div></div></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Feedback Banners -->
+<div class="mt-6 space-y-3">
+<!-- Correct State -->
+<div class="flex items-center gap-4 p-4 bg-tertiary/10 border border-tertiary/20 rounded-lg">
+<div class="w-10 h-10 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+<div>
+<p class="font-headline font-bold text-tertiary">¡Correcto!</p>
+<p class="text-xs text-tertiary/80">Has localizado la Tercera Mayor (3M) de C (Do) correctamente en E (Mi).</p>
+</div>
+</div>
+<!-- Incorrect State -->
+<div class="flex items-center gap-4 p-4 bg-error/10 border border-error/20 rounded-lg">
+<div class="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center text-error shrink-0">
+<span class="material-symbols-outlined">cancel</span>
+</div>
+<div>
+<p class="font-headline font-bold text-error">¡Incorrecto!</p>
+<p class="text-xs text-error/80">Esa nota es una 2da Mayor (D). La Tercera Mayor (3M) se encuentra en el traste 7 de la misma cuerda (E).</p>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 flex flex-wrap gap-4 items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="settings_input_component">settings_input_component</span>
+<span class="text-xs uppercase tracking-tighter">AFINACIÓN: STANDARD (EADGBE)</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center pb-6 pt-3 px-8 bg-[#131313]/90 backdrop-blur-xl border-t border-[#404752]/15 shadow-[0_-4px_32px_rgba(0,97,164,0.08)] z-50">
+<a class="flex flex-col items-center justify-center text-[#ffe2ab] bg-[#ffbf00]/10 rounded-xl px-4 py-1 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Manrope'] text-[10px] font-medium uppercase tracking-widest mt-1">Practice</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#353535] px-4 py-1 hover:text-[#9ecaff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="library_music">library_music</span>
+<span class="font-['Manrope'] text-[10px] font-medium uppercase tracking-widest mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#353535] px-4 py-1 hover:text-[#9ecaff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Manrope'] text-[10px] font-medium uppercase tracking-widest mt-1">Progress</span>
+</a>
+</nav>
+</body></html>
