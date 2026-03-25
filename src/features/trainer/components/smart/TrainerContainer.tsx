@@ -90,7 +90,7 @@ export default function TrainerContainer() {
       <TopAppBar />
       <BottomNavBar activeTab="practice" />
 
-      <main className="pt-24 pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <main className="pt-24 pb-48 lg:pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* ── Left Column ── */}
         <div className="lg:col-span-4 flex flex-col gap-8 order-2 lg:order-1">
           <section className="bg-[#1c1b1b] p-8 rounded-xl relative overflow-hidden">
@@ -134,8 +134,8 @@ export default function TrainerContainer() {
                 </p>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex flex-col gap-3">
+              {/* Action buttons — desktop only (hidden on mobile, shown via fixed bar) */}
+              <div className="hidden lg:flex flex-col gap-3">
                 <button
                   onClick={verify}
                   disabled={!hasSelection || feedbackState !== "idle"}
@@ -233,8 +233,8 @@ export default function TrainerContainer() {
                   feedbackState === "correct"
                     ? `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
                     : feedbackState === "incorrect"
-                    ? `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`
-                    : undefined
+                      ? `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`
+                      : undefined
                 }
               />
             </div>
@@ -251,6 +251,47 @@ export default function TrainerContainer() {
           </div>
         </div>
       </main>
+      {/* ── Mobile-only fixed action bar ────────────────────────────────────── */}
+      {/* Sits above the BottomNavBar (which is ~72px tall) */}
+      <div
+        className="lg:hidden fixed left-0 right-0 z-40 flex gap-2 px-4 py-3"
+        style={{
+          bottom: 90, // clear the BottomNavBar
+          backgroundColor: "rgba(19, 19, 19, 0.92)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: "1px solid rgba(64, 71, 82, 0.15)",
+        }}
+      >
+        <button
+          onClick={verify}
+          disabled={!hasSelection || feedbackState !== "idle"}
+          className={[
+            "flex-1 py-3 px-4 font-bold rounded-md flex items-center justify-center gap-2 transition-all active:scale-95 text-sm",
+            hasSelection && feedbackState === "idle"
+              ? "cta-gradient text-[#002c4f]"
+              : "bg-[#2a2a2a] text-[#89919d] cursor-not-allowed",
+          ].join(" ")}
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          <span className="material-symbols-outlined text-base">check_circle</span>
+          Verificar
+        </button>
+        <button
+          onClick={nextQuestion}
+          disabled={feedbackState === "idle"}
+          className={[
+            "flex-1 py-3 px-4 font-bold rounded-md flex items-center justify-center gap-2 border border-[#404752]/10 transition-all text-sm",
+            feedbackState !== "idle"
+              ? "bg-[#353535] text-[#e5e2e1]"
+              : "bg-[#1c1b1b] text-[#89919d] cursor-not-allowed",
+          ].join(" ")}
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          Siguiente
+          <span className="material-symbols-outlined text-base">arrow_forward</span>
+        </button>
+      </div>
     </>
   );
 }
