@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
 import BottomNavBar from "@/shared/components/ui/BottomNavBar";
 import TrainingModeCard from "../ui/TrainingModeCard";
 import SessionParameters from "../ui/SessionParameters";
+import { useSessionStore } from "@/store/session.store";
 import {
   TRAINING_MODE_OPTIONS,
   type TrainingMode,
@@ -12,11 +14,18 @@ import {
 } from "../../domain/main-menu.types";
 
 export default function MainMenuContainer() {
+  const router = useRouter();
+  const startSession = useSessionStore((s) => s.startSession);
+
   const [selectedMode, setSelectedMode] = useState<TrainingMode>("intervals");
   const [selectedCount, setSelectedCount] = useState<QuestionCount>(10);
 
   const handleStart = () => {
-    // Navigation to trainer will be wired in a later step
+    startSession({
+      mode: selectedMode,
+      totalQuestions: selectedCount ?? Infinity,
+    });
+    router.push("/trainer");
   };
 
   return (
@@ -32,7 +41,6 @@ export default function MainMenuContainer() {
       <main className="pt-24 pb-32 px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* ── Left Column ── */}
         <section className="lg:col-span-5 flex flex-col gap-10">
-          {/* Hero text */}
           <div className="space-y-4">
             <span
               className="text-[#9ecaff] font-medium tracking-widest text-sm uppercase"
@@ -53,7 +61,6 @@ export default function MainMenuContainer() {
             </p>
           </div>
 
-          {/* Session config */}
           <SessionParameters
             selectedCount={selectedCount}
             onSelectCount={setSelectedCount}

@@ -72,3 +72,125 @@ Intervalos:
 - 7M y 7m: Única dirección en las cuerdas [2-6]
 - 8: Hacia ambos lados en las cuerdas [3-6]
     - En la tercera cuerda solo existe hacía la derecha
+
+Ejemplo de intervalos izq y der. A manera de ejemplo todos están con tónica en 5to traste y a manera de ejemplo describo solo los intervalos mayores, para los menores es lo mismo pero todo un traste atrás.
+
+### **Cuerdas consecutivas**
+
+**2M. Tónica A, 2M: B**
+
+- 6ta cuerda
+    - Derecha: traste 7 misma cuerda
+    - Izquierda: traste 2 cuerda 5
+- 5ta cuerda
+    - Derecha: traste 7 misma cuerda
+    - Izquierda: traste 2 cuerda 4
+- 4ta cuerda
+    - Derecha: traste 7 misma cuerda
+    - Izquierda: traste 2 cuerda 3
+- 3ra cuerda
+    - Derecha: traste 7 misma cuerda
+    - Izquierda: traste 3 cuerda 2
+- 2da cuerda
+    - Derecha: traste 7 misma cuerda
+    - Izquierda: traste 2 cuerda 1
+
+**3M. Tónica A, 3M: C#**
+
+- 6ta cuerda
+    - Derecha: traste 9 misma cuerda
+    - Izquierda: traste 4 cuerda 5
+- 5ta cuerda
+    - Derecha: traste 9 misma cuerda
+    - Izquierda: traste 4 cuerda 4
+- 4ta cuerda
+    - Derecha: traste 9 misma cuerda
+    - Izquierda: traste 4 cuerda 3
+- 3ra cuerda
+    - Derecha: traste 9 misma cuerda
+    - Izquierda: traste 5 cuerda 2
+- 2da cuerda
+    - Derecha: traste 9 misma cuerda
+    - Izquierda: traste 4 cuerda 1
+
+**4J. Tónica A, 3M: D - Unidireccional**
+
+- 6ta cuerda
+    - 4J: traste 5, cuerda 5
+- 5ta cuerda
+    - 4J: traste 5 cuerda 4
+- 4ta cuerda
+    - 4J: traste 5, cuerda 3
+- 3ra cuerda
+    - 4J: traste 6, cuerda 2
+- 2da cuerda
+    - 4J: traste 5, cuerda 1
+
+### Cuerdas No consecutivas
+
+**5J. Tónica A, 5J: E** 
+
+- 6ta cuerda
+    - Derecha: traste 7 cuerda 5
+    - Izquierda: traste 2 cuerda 4
+- 5ta cuerda
+    - Derecha: traste 7 cuerda 4
+    - Izquierda: traste 2 cuerda 3
+- 4ta cuerda
+    - Derecha: traste 7 cuerda 3
+    - Izquierda: traste 3 cuerda 2
+- 3ra cuerda
+    - Derecha: traste 8 cuerda 2
+    - Izquierda: traste 3 cuerda 1
+- 2da cuerda
+    - Derecha: traste 7 cuerda 1
+    - Izquierda: No hay
+
+**6M. Tónica A, 6M: F#m**
+
+- 6ta cuerda
+    - Derecha: traste 9 cuerda 5
+    - Izquierda: traste 4 cuerda 4
+- 5ta cuerda
+    - Derecha: traste 9 cuerda 4
+    - Izquierda: traste 4 cuerda 3
+- 4ta cuerda
+    - Derecha: traste 9 cuerda 3
+    - Izquierda: traste 5 cuerda 2
+- 3ra cuerda
+    - Derecha: traste 10 cuerda 2
+    - Izquierda: traste 5 cuerda 1
+- 2da cuerda
+    - Derecha: traste 9 cuerda 1
+    - Izquierda: No hay
+
+**7M. Tónica A, 7M: G# - Unidireccional**
+
+- 6ta cuerda
+    - 7M: traste 6, cuerda 4
+- 5ta cuerda
+    - 7M: traste 6 cuerda 3
+- 4ta cuerda
+    - 7M: traste 7, cuerda 2
+- 3ra cuerda
+    - 7M: traste 7, cuerda 1
+- 2da cuerda
+    - No hay
+
+**8vas. Tónica A, 8J: A**
+
+- 6ta cuerda
+    - Derecha: traste 7 cuerda 4
+    - Izquierda: traste 2 cuerda 3
+- 5ta cuerda
+    - Derecha: traste 7 cuerda 3
+    - Izquierda: traste 3 cuerda 2
+- 4ta cuerda
+    - Derecha: traste 8 cuerda 2
+    - Izquierda: traste 3 cuerda 1
+- 3ra cuerda
+    - Derecha: traste 8 cuerda 1
+    - Izquierda: No hay
+- 2da cuerda
+    - Derecha: No hay
+    - Izquierda: No hay

@@ -1,23 +1,52 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
 import BottomNavBar from "@/shared/components/ui/BottomNavBar";
 import ScoreHero from "../ui/ScoreHero";
 import IntervalResultRow from "../ui/IntervalResultRow";
-import type { SessionSummaryData } from "../../domain/session-summary.types";
-
-// ── Static placeholder data (no logic yet) ───────────────────────────────────
-const PLACEHOLDER_SUMMARY: SessionSummaryData = {
-  correct: 15,
-  total: 20,
-  intervalResults: [
-    { symbol: "2M", label: "Major Second",  correct: 2, total: 2 },
-    { symbol: "P5", label: "Perfect Fifth", correct: 8, total: 8 },
-    { symbol: "3M", label: "Major Third",   correct: 0, total: 3 },
-    { symbol: "m7", label: "Minor Seventh", correct: 5, total: 7 },
-  ],
-};
+import { useSessionStore } from "@/store/session.store";
+import type { IntervalResult } from "../../domain/session-summary.types";
 
 export default function SessionSummaryContainer() {
-  const { correct, total, intervalResults } = PLACEHOLDER_SUMMARY;
+  const router = useRouter();
+  const { phase, results, resetSession } = useSessionStore();
+
+  // Guard: must be in summary phase
+  useEffect(() => {
+    if (phase === "menu") router.replace("/");
+    if (phase === "training") router.replace("/trainer");
+  }, [phase, router]);
+
+  // Aggregate results by interval symbol
+  const intervalBreakdown = results.reduce<Record<string, IntervalResult>>(
+    (acc, r) => {
+      if (!acc[r.intervalSymbol]) {
+        acc[r.intervalSymbol] = {
+          symbol: r.intervalSymbol,
+          label: r.intervalLabel,
+          correct: 0,
+          total: 0,
+        };
+      }
+      acc[r.intervalSymbol].total += 1;
+      if (r.wasCorrect) acc[r.intervalSymbol].correct += 1;
+      return acc;
+    },
+    {}
+  );
+
+  const intervalResults = Object.values(intervalBreakdown);
+  const totalCorrect = results.filter((r) => r.wasCorrect).length;
+  const total = results.length;
+
+  const handleReset = () => {
+    resetSession();
+    router.push("/");
+  };
+
+  if (phase !== "summary") return null;
 
   return (
     <>
@@ -25,7 +54,7 @@ export default function SessionSummaryContainer() {
       <BottomNavBar activeTab="practice" />
 
       <main className="pt-24 px-6 pb-32 max-w-2xl mx-auto w-full">
-        <ScoreHero correct={correct} total={total} />
+        <ScoreHero correct={totalCorrect} total={total} />
 
         {/* Interval breakdown */}
         <section className="space-y-4">
@@ -37,28 +66,34 @@ export default function SessionSummaryContainer() {
             Interval Breakdown
           </h3>
 
-          <div className="grid gap-3">
-            {intervalResults.map((result) => (
-              <IntervalResultRow key={result.symbol} result={result} />
-            ))}
-          </div>
+          {intervalResults.length === 0 ? (
+            <p className="text-[#89919d] text-sm">No hay resultados.</p>
+          ) : (
+            <div className="grid gap-3">
+              {intervalResults.map((result) => (
+                <IntervalResultRow key={result.symbol} result={result} />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Action buttons */}
         <section className="mt-12 flex flex-col sm:flex-row gap-4">
           <button
+            onClick={handleReset}
             className="flex-1 py-4 rounded-md font-bold cta-gradient text-[#002c4f] flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             <span className="material-symbols-outlined">replay</span>
-            Restart Session
+            Nueva sesión
           </button>
           <button
+            onClick={handleReset}
             className="flex-1 py-4 rounded-md font-bold bg-[#353535] text-[#e5e2e1] flex items-center justify-center gap-2 hover:bg-[#393939] active:scale-[0.98] transition-all"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             <span className="material-symbols-outlined">home</span>
-            Back to Menu
+            Volver al menú
           </button>
         </section>
 
@@ -83,11 +118,10 @@ export default function SessionSummaryContainer() {
               className="text-[#ffe2ab] font-bold"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              New Milestone Near!
+              ¡Sigue practicando!
             </p>
             <p className="text-[#bfc7d4] text-sm mt-1">
-              Practice 2 more sessions to unlock the{" "}
-              <em>&ldquo;Interval Master&rdquo;</em> badge.
+              La consistencia es la clave para dominar el mástil.
             </p>
           </div>
         </div>

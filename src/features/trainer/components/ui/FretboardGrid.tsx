@@ -1,40 +1,53 @@
+"use client";
+
+import { fretToMidi, midiToName } from "@/lib/music/notes";
 import type {
   FretboardNotes,
   NoteState,
   StringName,
 } from "../../domain/trainer.types";
-import {
-  STRING_NAMES,
-  FRET_COUNT,
-  INLAY_FRETS_SINGLE,
-  INLAY_FRET_DOUBLE,
-} from "../../domain/trainer.types";
 
-// ── Note cell colour mapping ────────────────────────────────────────────────
-const NOTE_STATE_STYLES: Record<NoteState, string> = {
-  default:   "bg-transparent cursor-pointer hover:bg-[#353535]/60",
-  tonic:     "bg-[#2196f3] text-[#002c4f] font-bold bloom-primary cursor-default",
-  selected:  "bg-[#9ecaff] text-[#003258] font-bold cursor-pointer",
-  correct:   "bg-[#4edea3] text-[#003824] font-bold bloom-tertiary cursor-default",
-  incorrect: "bg-[#ffb4ab] text-[#690005] font-bold bloom-error cursor-default",
+// ── Layout constants (px) ────────────────────────────────────────────────────
+const ROW_H       = 52;   // height per string row
+const COL_W       = 68;   // width per fret column (wider for easier clicking)
+const NUT_W       = 44;   // width of the nut column
+const LABEL_W     = 36;   // width of string-name label column
+const BOARD_H     = 6 * ROW_H; // 312px
+
+// ── String display order: E1 (top/thin) → E6 (bottom/thick) ─────────────────
+// Standard guitar orientation when neck is laid flat
+const DISPLAY_STRINGS: StringName[] = ["E1", "B", "G", "D", "A", "E6"];
+
+// ── String visual properties ─────────────────────────────────────────────────
+const STRING_THICKNESS: Record<StringName, number> = {
+  E1: 1, B: 1, G: 1.5, D: 2, A: 2.5, E6: 3,
+};
+const STRING_OPACITY: Record<StringName, number> = {
+  E1: 0.2, B: 0.22, G: 0.3, D: 0.35, A: 0.4, E6: 0.45,
 };
 
-const STRING_THICKNESS: Record<StringName, string> = {
-  E1: "h-px",
-  B:  "h-px",
-  G:  "h-[1.5px]",
-  D:  "h-[2px]",
-  A:  "h-[2.5px]",
-  E6: "h-[3px]",
-};
+// ── Inlay dot positions ───────────────────────────────────────────────────────
+const SINGLE_DOTS = [3, 5, 7, 9, 15, 17, 19];
+const DOUBLE_DOTS = [12];
 
-const STRING_OPACITY: Record<StringName, string> = {
-  E1: "opacity-20",
-  B:  "opacity-20",
-  G:  "opacity-30",
-  D:  "opacity-30",
-  A:  "opacity-40",
-  E6: "opacity-40",
+// ── Note state styles ─────────────────────────────────────────────────────────
+const STATE_BG: Record<Exclude<NoteState, "default">, string> = {
+  tonic:     "#2196f3",
+  selected:  "#9ecaff",
+  correct:   "#4edea3",
+  incorrect: "#ffb4ab",
+};
+const STATE_TEXT: Record<Exclude<NoteState, "default">, string> = {
+  tonic:     "#003258",
+  selected:  "#003258",
+  correct:   "#003824",
+  incorrect: "#690005",
+};
+const STATE_SHADOW: Record<Exclude<NoteState, "default">, string> = {
+  tonic:     "0 0 14px rgba(33,150,243,0.55)",
+  selected:  "0 0 10px rgba(158,202,255,0.45)",
+  correct:   "0 0 14px rgba(78,222,163,0.55)",
+  incorrect: "0 0 14px rgba(255,180,171,0.55)",
 };
 
 interface FretboardGridProps {
@@ -42,125 +55,216 @@ interface FretboardGridProps {
   onCellClick?: (stringName: StringName, fret: number) => void;
 }
 
-const FRET_WIDTH = "w-20";  // 5rem per fret column
-const NUT_WIDTH  = "w-16";  // 4rem for nut column
+// Frets 1–FRET_COUNT are interactive; fret 0 = open string in nut area
+const FRET_COUNT = 20;
+const FRETS = Array.from({ length: FRET_COUNT }, (_, i) => i + 1); // 1–20
+
+/** x-coordinate of the LEFT edge of a fret column (1-indexed) */
+function fretLeft(fret: number): number {
+  return LABEL_W + NUT_W + (fret - 1) * COL_W;
+}
+
+/** x-coordinate of the center of a fret column */
+function fretCenter(fret: number): number {
+  return fretLeft(fret) + COL_W / 2;
+}
+
+/** y-coordinate of the CENTER of a string row */
+function rowCenter(rowIdx: number): number {
+  return rowIdx * ROW_H + ROW_H / 2;
+}
 
 export default function FretboardGrid({ notes, onCellClick }: FretboardGridProps) {
-  const frets = Array.from({ length: FRET_COUNT + 1 }, (_, i) => i); // 0-12
+  const totalWidth = LABEL_W + NUT_W + FRET_COUNT * COL_W + 16;
 
   return (
     <div className="overflow-x-auto fretboard-scroll pb-4">
       <div
-        className="min-w-[1100px] bg-[#1c1b1b] rounded-xl overflow-hidden relative fretboard-shadow border border-[#404752]/10"
+        className="bg-[#1c1b1b] rounded-xl overflow-hidden relative fretboard-shadow border border-[#404752]/10"
+        style={{ minWidth: totalWidth }}
       >
-        {/* ── Fret number labels ─────────────────────────────── */}
-        <div className="flex ml-12 border-b border-[#404752]/5">
+        {/* ── Fret number header ─────────────────────────────────────────────── */}
+        <div
+          className="flex border-b border-[#404752]/10"
+          style={{ marginLeft: LABEL_W, height: 32 }}
+        >
+          {/* NUT label */}
           <div
-            className={`${NUT_WIDTH} h-8 flex items-center justify-center text-[10px] text-[#bfc7d4]/40`}
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            className="flex items-center justify-center text-[10px] text-[#bfc7d4]/30 shrink-0"
+            style={{ width: NUT_W, fontFamily: "'Space Grotesk', sans-serif" }}
           >
             NUT
           </div>
-          {frets.slice(1).map((fret) => (
+          {/* Fret numbers — each centered in its column */}
+          {FRETS.map((fret) => (
             <div
               key={fret}
-              className={`${FRET_WIDTH} h-8 flex items-center justify-center text-[10px] text-[#bfc7d4]/40`}
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              className="flex items-center justify-center text-[10px] text-[#bfc7d4]/30 shrink-0"
+              style={{ width: COL_W, fontFamily: "'Space Grotesk', sans-serif" }}
             >
               {fret}
             </div>
           ))}
         </div>
 
-        {/* ── Fretboard body ─────────────────────────────────── */}
-        <div className="relative py-4">
-          {/* String lines */}
-          <div className="absolute inset-0 flex flex-col justify-between py-10 pointer-events-none px-12">
-            {STRING_NAMES.map((s) => (
-              <div
-                key={s}
-                className={`${STRING_THICKNESS[s]} w-full bg-[#bfc7d4] ${STRING_OPACITY[s]}`}
-              />
-            ))}
-          </div>
+        {/* ── Fretboard body (absolutely positioned) ─────────────────────────── */}
+        <div
+          className="relative"
+          style={{ height: BOARD_H, marginLeft: LABEL_W }}
+        >
+          {/* ── String lines ─────────────────────────────────────────────────── */}
+          {DISPLAY_STRINGS.map((s, rowIdx) => (
+            <div
+              key={s}
+              className="absolute pointer-events-none"
+              style={{
+                top: rowCenter(rowIdx) - STRING_THICKNESS[s] / 2,
+                left: 0,
+                right: 0,
+                height: STRING_THICKNESS[s],
+                backgroundColor: "#bfc7d4",
+                opacity: STRING_OPACITY[s],
+              }}
+            />
+          ))}
 
-          {/* Fret wires */}
-          <div className="absolute inset-0 flex ml-12 pointer-events-none">
-            {/* Nut (thicker) */}
-            <div className={`${NUT_WIDTH} h-full border-r-[3px] border-[#393939]/50`} />
-            {/* Fret wires */}
-            {frets.slice(1).map((fret) => (
-              <div
-                key={fret}
-                className={`${FRET_WIDTH} h-full border-r border-[#393939]/40`}
-              />
-            ))}
-          </div>
+          {/* ── Nut (thick vertical bar) ─────────────────────────────────────── */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: 0,
+              height: BOARD_H,
+              left: NUT_W,
+              width: 3,
+              background: "rgba(100,100,100,0.7)",
+            }}
+          />
 
-          {/* Inlay dots */}
-          <div className="absolute inset-0 flex ml-12 pointer-events-none items-center">
-            {/* Nut spacer */}
-            <div className={NUT_WIDTH} />
-            {frets.slice(1).map((fret) => {
-              const isDouble = fret === INLAY_FRET_DOUBLE;
-              const isSingle = INLAY_FRETS_SINGLE.includes(fret);
+          {/* ── Fret wires ───────────────────────────────────────────────────── */}
+          {FRETS.map((fret) => (
+            <div
+              key={fret}
+              className="absolute pointer-events-none"
+              style={{
+                top: 0,
+                height: BOARD_H,
+                left: NUT_W + fret * COL_W,
+                width: 1,
+                background: "rgba(80,80,80,0.5)",
+              }}
+            />
+          ))}
+
+          {/* ── Inlay — single dots ───────────────────────────────────────────── */}
+          {SINGLE_DOTS.map((fret) => (
+            <div
+              key={fret}
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                width: 12,
+                height: 12,
+                backgroundColor: "rgba(229,226,225,0.09)",
+                top: BOARD_H / 2 - 6,
+                left: NUT_W + (fret - 1) * COL_W + COL_W / 2 - 6,
+              }}
+            />
+          ))}
+
+          {/* ── Inlay — double dots (fret 12) ───────────────────────────────── */}
+          {DOUBLE_DOTS.map((fret) =>
+            [BOARD_H * 0.25, BOARD_H * 0.75].map((yPct, i) => (
+              <div
+                key={`${fret}-${i}`}
+                className="absolute rounded-full pointer-events-none"
+                style={{
+                  width: 12,
+                  height: 12,
+                  backgroundColor: "rgba(229,226,225,0.09)",
+                  top: yPct - 6,
+                  left: NUT_W + (fret - 1) * COL_W + COL_W / 2 - 6,
+                }}
+              />
+            ))
+          )}
+
+          {/* ── String labels (left column) ──────────────────────────────────── */}
+          {DISPLAY_STRINGS.map((s, rowIdx) => (
+            <div
+              key={s}
+              className="absolute flex items-center justify-center"
+              style={{
+                top: rowIdx * ROW_H,
+                left: -LABEL_W,
+                width: LABEL_W,
+                height: ROW_H,
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 11,
+                fontWeight: "bold",
+                color: "rgba(191,199,212,0.45)",
+              }}
+            >
+              {s.replace("6", "").replace("1", "")}
+            </div>
+          ))}
+
+          {/* ── Interactive fret cells ────────────────────────────────────────── */}
+          {DISPLAY_STRINGS.map((stringName, rowIdx) =>
+            FRETS.map((fret) => {
+              const key = `${stringName}-${fret}`;
+              const state: NoteState = notes[key] ?? "default";
+              const isClickable = state === "default" || state === "selected";
+              const hasNote = state !== "default";
+
+              // Compute note name for tonic / correct / incorrect labels
+              const shouldShowLabel =
+                state === "tonic" || state === "correct" || state === "incorrect";
+              const noteName = shouldShowLabel
+                ? midiToName(fretToMidi(stringName, fret))
+                : "";
+
               return (
-                <div key={fret} className={`${FRET_WIDTH} flex flex-col items-center justify-center gap-6`}>
-                  {isDouble ? (
-                    <>
-                      <div className="w-2 h-2 rounded-full bg-[#e5e2e1]/5" />
-                      <div className="w-2 h-2 rounded-full bg-[#e5e2e1]/5" />
-                    </>
-                  ) : isSingle ? (
-                    <div className="w-2 h-2 rounded-full bg-[#e5e2e1]/5" />
-                  ) : null}
+                <div
+                  key={key}
+                  onClick={() => isClickable && onCellClick?.(stringName, fret)}
+                  className="absolute flex items-center justify-center transition-colors"
+                  style={{
+                    top: rowIdx * ROW_H,
+                    left: NUT_W + (fret - 1) * COL_W,
+                    width: COL_W,
+                    height: ROW_H,
+                    cursor: isClickable ? "pointer" : "default",
+                    zIndex: 10,
+                  }}
+                >
+                  {hasNote ? (
+                    /* Coloured note circle */
+                    <div
+                      className="flex items-center justify-center rounded-full transition-all"
+                      style={{
+                        width: 30,
+                        height: 30,
+                        backgroundColor: STATE_BG[state as Exclude<NoteState, "default">],
+                        color: STATE_TEXT[state as Exclude<NoteState, "default">],
+                        boxShadow: STATE_SHADOW[state as Exclude<NoteState, "default">],
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontSize: noteName.length > 1 ? 9 : 11,
+                        fontWeight: "bold",
+                        userSelect: "none",
+                      }}
+                    >
+                      {noteName}
+                    </div>
+                  ) : (
+                    /* Hover ghost circle for empty cells */
+                    <div
+                      className="rounded-full transition-all duration-150 hover:bg-[#353535]/70 group-hover:opacity-100"
+                      style={{ width: 30, height: 30 }}
+                    />
+                  )}
                 </div>
               );
-            })}
-          </div>
-
-          {/* Note interaction grid */}
-          <div className="relative z-10 flex flex-col gap-4 py-2">
-            {STRING_NAMES.map((stringName) => (
-              <div key={stringName} className="flex items-center ml-12 h-8">
-                {/* String label */}
-                <div className={`${NUT_WIDTH} flex justify-center`}>
-                  <div
-                    className="w-7 h-7 rounded-full bg-transparent flex items-center justify-center text-xs font-bold text-transparent"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {stringName.replace("6", "").replace("1", "")}
-                  </div>
-                </div>
-
-                {/* Fret cells */}
-                {frets.map((fret) => {
-                  const key = `${stringName}-${fret}`;
-                  const state: NoteState = notes[key] ?? "default";
-                  const label = state !== "default" ? key.split("-")[0].replace("6","").replace("1","") : "";
-
-                  return (
-                    <div key={fret} className={`${FRET_WIDTH} flex justify-center`}>
-                      <div
-                        role={state === "default" ? "button" : undefined}
-                        tabIndex={state === "default" ? 0 : undefined}
-                        onClick={() =>
-                          state === "default" && onCellClick?.(stringName, fret)
-                        }
-                        className={[
-                          "w-7 h-7 rounded-full flex items-center justify-center text-[10px] transition-all",
-                          NOTE_STATE_STYLES[state],
-                        ].join(" ")}
-                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                      >
-                        {label}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+            })
+          )}
         </div>
       </div>
     </div>
