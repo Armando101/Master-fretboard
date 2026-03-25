@@ -219,7 +219,11 @@ export default function TrainerContainer() {
             </div>
 
             {/* The fretboard */}
-            <FretboardGrid notes={notes} onCellClick={handleCellClick} />
+            <FretboardGrid
+              notes={notes}
+              onCellClick={handleCellClick}
+              tonicFret={question.tonicFret}
+            />
 
             {/* Feedback */}
             <div className="mt-6 space-y-3">

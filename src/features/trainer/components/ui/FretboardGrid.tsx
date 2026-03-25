@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { fretToMidi, midiToName } from "@/lib/music/notes";
 import type {
   FretboardNotes,
@@ -53,6 +54,8 @@ const STATE_SHADOW: Record<Exclude<NoteState, "default">, string> = {
 interface FretboardGridProps {
   notes: FretboardNotes;
   onCellClick?: (stringName: StringName, fret: number) => void;
+  /** When provided, the fretboard auto-scrolls to center this fret on every change */
+  tonicFret?: number;
 }
 
 // Frets 1–FRET_COUNT are interactive; fret 0 = open string in nut area
@@ -74,11 +77,22 @@ function rowCenter(rowIdx: number): number {
   return rowIdx * ROW_H + ROW_H / 2;
 }
 
-export default function FretboardGrid({ notes, onCellClick }: FretboardGridProps) {
+export default function FretboardGrid({ notes, onCellClick, tonicFret }: FretboardGridProps) {
   const totalWidth = LABEL_W + NUT_W + FRET_COUNT * COL_W + 16;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to center the tonic fret whenever it changes
+  useEffect(() => {
+    if (tonicFret == null || !scrollRef.current) return;
+    const container = scrollRef.current;
+    // Center of the tonic fret column in absolute px (relative to scroll content)
+    const tonicCenterX = LABEL_W + NUT_W + (tonicFret - 0.5) * COL_W;
+    const scrollTarget = tonicCenterX - container.clientWidth / 2;
+    container.scrollTo({ left: Math.max(0, scrollTarget), behavior: "smooth" });
+  }, [tonicFret]);
 
   return (
-    <div className="overflow-x-auto fretboard-scroll pb-4">
+    <div ref={scrollRef} className="overflow-x-auto fretboard-scroll pb-4">
       <div
         className="bg-[#1c1b1b] rounded-xl overflow-hidden relative fretboard-shadow border border-[#404752]/10"
         style={{ minWidth: totalWidth }}
