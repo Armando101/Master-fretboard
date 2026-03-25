@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─────────────────────────────────────────────
+   DESIGN SYSTEM — The Virtuoso's Atelier
+   Palette: Deep Charcoal + Amber + Emerald
+   ───────────────────────────────────────────── */
+@theme {
+  /* Surfaces */
+  --color-background:               #131313;
+  --color-surface:                  #131313;
+  --color-surface-dim:              #131313;
+  --color-surface-bright:           #393939;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-surface-container-low:    #1c1b1b;
+  --color-surface-container:        #20201f;
+  --color-surface-container-high:   #2a2a2a;
+  --color-surface-container-highest:#353535;
+  --color-surface-variant:          #353535;
+
+  /* Primary (Steel Blue) */
+  --color-primary:                  #9ecaff;
+  --color-primary-container:        #2196f3;
+  --color-on-primary:               #003258;
+  --color-on-primary-container:     #002c4f;
+  --color-primary-fixed:            #d1e4ff;
+  --color-primary-fixed-dim:        #9ecaff;
+  --color-on-primary-fixed:         #001d36;
+  --color-on-primary-fixed-variant: #00497d;
+  --color-inverse-primary:          #0061a4;
+  --color-surface-tint:             #9ecaff;
+
+  /* Secondary (Amber) */
+  --color-secondary:                #ffe2ab;
+  --color-secondary-container:      #ffbf00;
+  --color-on-secondary:             #402d00;
+  --color-on-secondary-container:   #6d5000;
+  --color-secondary-fixed:          #ffdfa0;
+  --color-secondary-fixed-dim:      #fbbc00;
+  --color-on-secondary-fixed:       #261a00;
+  --color-on-secondary-fixed-variant: #5c4300;
+
+  /* Tertiary (Emerald / Success) */
+  --color-tertiary:                 #4edea3;
+  --color-tertiary-container:       #00a673;
+  --color-on-tertiary:              #003824;
+  --color-on-tertiary-container:    #003220;
+  --color-tertiary-fixed:           #6ffbbe;
+  --color-tertiary-fixed-dim:       #4edea3;
+  --color-on-tertiary-fixed:        #002113;
+  --color-on-tertiary-fixed-variant: #005236;
+
+  /* Error / Incorrect */
+  --color-error:                    #ffb4ab;
+  --color-error-container:          #93000a;
+  --color-on-error:                 #690005;
+  --color-on-error-container:       #ffdad6;
+
+  /* Outline */
+  --color-outline:                  #89919d;
+  --color-outline-variant:          #404752;
+
+  /* On-Surface */
+  --color-on-surface:               #e5e2e1;
+  --color-on-surface-variant:       #bfc7d4;
+  --color-on-background:            #e5e2e1;
+  --color-inverse-surface:          #e5e2e1;
+  --color-inverse-on-surface:       #313030;
+
+  /* Typography */
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body:     "Manrope", sans-serif;
+  --font-label:    "Manrope", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Global base ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Material Symbols ─── */
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined", sans-serif;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  user-select: none;
+}
+
+/* ─── Design utilities ─── */
+
+/* CTA / Primary button gradient */
+.cta-gradient {
+  background: linear-gradient(135deg, #9ecaff 0%, #2196f3 100%);
+}
+
+/* Glass panel for tooltips / overlays */
+.custom-glass {
+  background: rgba(53, 53, 53, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Ghost border (accessibility) */
+.ghost-border {
+  border: 1px solid rgba(64, 71, 82, 0.15);
+}
+
+/* Note marker "Bloom" glows */
+.bloom-secondary {
+  box-shadow: 0 0 16px rgba(255, 191, 0, 0.25);
+}
+.bloom-primary {
+  box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+}
+.bloom-tertiary {
+  box-shadow: 0 0 15px rgba(78, 222, 163, 0.5);
+}
+.bloom-error {
+  box-shadow: 0 0 15px rgba(255, 180, 171, 0.5);
+}
+
+/* Fretboard scrollbar */
+.fretboard-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.fretboard-scroll::-webkit-scrollbar-track {
+  background: #131313;
+}
+.fretboard-scroll::-webkit-scrollbar-thumb {
+  background: #353535;
+  border-radius: 10px;
+}
+
+/* Inset shadow for fretboard depth */
+.fretboard-shadow {
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+}
+
+/* Ambient floating shadow (primary-tinted) */
+.shadow-ambient {
+  box-shadow: 0 4px 32px rgba(0, 97, 164, 0.08);
+}
+.shadow-cta {
+  box-shadow: 0 4px 24px rgba(33, 150, 243, 0.3);
 }
