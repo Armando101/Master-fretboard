@@ -219,3 +219,8 @@ Escalas posibles:
 - Cb: Cb Db Eb Fb Gb Ab Bb Cb
 
 Por lo tanto la tónica nunca será A#, en su lugar será Bb, estás son las 15 tónicas y escalas posibles.
+
+
+Botón de finalizar, esto por si el usuario quiere finalizar antes de que termine el total de preguntas a hacer, redirecciona a la pantalla de estadísticas y muestra el total de preguntas hechas en lugar de las seleccionadas.
+
+Si el usuario seleccionó 20 preguntas y al final, solo hizo 15 y da click en el botón de terminar, en las estadísticas dirá Número de respues correctas sobre 15, NO sobre 20

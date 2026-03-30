@@ -40,6 +40,7 @@ export interface SessionStore {
   deselectPosition: (pos: Position) => void;
   verify: () => void;
   nextQuestion: () => void;
+  finishEarly: () => void;
   resetSession: () => void;
 }
 
@@ -155,6 +156,11 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       revealedIncorrect: [],
       currentQuestionIndex: nextIndex,
     });
+  },
+
+  // ── finishEarly ───────────────────────────────────────────────────────────
+  finishEarly() {
+    set({ phase: "summary" });
   },
 
   // ── resetSession ──────────────────────────────────────────────────────────

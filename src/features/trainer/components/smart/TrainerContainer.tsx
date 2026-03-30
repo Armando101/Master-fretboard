@@ -26,6 +26,7 @@ export default function TrainerContainer() {
     deselectPosition,
     verify,
     nextQuestion,
+    finishEarly,
   } = useSessionStore();
 
   // Guard: if no active session, redirect to menu
@@ -164,6 +165,20 @@ export default function TrainerContainer() {
                   Siguiente pregunta
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
+                <button
+                  onClick={finishEarly}
+                  disabled={results.length === 0}
+                  className={[
+                    "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 border transition-all",
+                    results.length > 0
+                      ? "border-[#ff6b6b]/30 text-[#ff6b6b] hover:bg-[#ff6b6b]/10"
+                      : "border-[#404752]/10 text-[#89919d] cursor-not-allowed",
+                  ].join(" ")}
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  <span className="material-symbols-outlined text-base">flag</span>
+                  Terminar sesión
+                </button>
               </div>
             </div>
           </section>
@@ -290,6 +305,20 @@ export default function TrainerContainer() {
         >
           Siguiente
           <span className="material-symbols-outlined text-base">arrow_forward</span>
+        </button>
+        <button
+          onClick={finishEarly}
+          disabled={results.length === 0}
+          className={[
+            "py-3 px-4 font-bold rounded-md flex items-center justify-center gap-1 border transition-all text-sm",
+            results.length > 0
+              ? "border-[#ff6b6b]/30 text-[#ff6b6b]"
+              : "border-[#404752]/10 text-[#89919d] cursor-not-allowed",
+          ].join(" ")}
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          <span className="material-symbols-outlined text-base">flag</span>
+          Terminar
         </button>
       </div>
     </>
