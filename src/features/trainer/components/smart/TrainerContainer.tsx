@@ -64,15 +64,15 @@ export default function TrainerContainer() {
     }
   }
 
-  const correctCount = results.filter((r) => r.wasCorrect).length;
-  const stats = { correct: correctCount, total: results.length };
-  const totalQuestions = config?.totalQuestions ?? 0;
+  const correctCount    = results.filter((r) => r.wasCorrect).length;
+  const stats           = { correct: correctCount, total: results.length };
+  const totalQuestions  = config?.totalQuestions ?? 0;
   const questionProgress = `${currentQuestionIndex + 1} / ${Number.isFinite(totalQuestions) ? totalQuestions : "∞"}`;
-  const hasSelection = selectedPositions.length > 0;
+  const hasSelection    = selectedPositions.length > 0;
 
   const handleCellClick = (stringName: StringName, fret: number) => {
     if (feedbackState !== "idle") return;
-    const pos = { string: stringName, fret };
+    const pos    = { string: stringName, fret };
     const posKey = `${stringName}-${fret}`;
     const alreadySelected = selectedPositions.some(
       (p) => `${p.string}-${p.fret}` === posKey
@@ -85,6 +85,90 @@ export default function TrainerContainer() {
   };
 
   if (!question) return null;
+
+  // ── Question header content (differs by kind) ────────────────────────────
+  const isScale = question.kind === "scale";
+
+  const questionHeadline = isScale ? (
+    <>
+      Escala Mayor —{" "}
+      <span className="text-[#9ecaff]">{question.position}</span>
+      <span className="text-[#bfc7d4] text-sm font-normal ml-2">
+        ({question.scopeLabel})
+      </span>
+    </>
+  ) : (
+    <>
+      Selecciona un intervalo de{" "}
+      <span className="text-[#9ecaff]">{question.intervalSymbol}</span>
+      <span className="text-[#bfc7d4] text-sm font-normal ml-2">
+        ({question.intervalLabel})
+      </span>
+    </>
+  );
+
+  const feedbackMessage =
+    feedbackState === "correct"
+      ? isScale
+        ? `¡Correcto! Completaste la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
+        : `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
+      : feedbackState === "incorrect"
+      ? isScale
+        ? `Incorrecto. Las posiciones en verde son la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
+        : `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`
+      : undefined;
+
+  // ── Shared action-buttons ─────────────────────────────────────────────────
+  const verifyBtn = (
+    <button
+      onClick={verify}
+      disabled={!hasSelection || feedbackState !== "idle"}
+      className={[
+        "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 transition-all active:scale-95",
+        hasSelection && feedbackState === "idle"
+          ? "cta-gradient text-[#002c4f] hover:opacity-90"
+          : "bg-[#2a2a2a] text-[#89919d] cursor-not-allowed",
+      ].join(" ")}
+      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+    >
+      <span className="material-symbols-outlined">check_circle</span>
+      Verificar
+    </button>
+  );
+
+  const nextBtn = (
+    <button
+      onClick={nextQuestion}
+      disabled={feedbackState === "idle"}
+      className={[
+        "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 border border-[#404752]/10 transition-all",
+        feedbackState !== "idle"
+          ? "bg-[#353535] text-[#e5e2e1] hover:bg-[#393939]"
+          : "bg-[#1c1b1b] text-[#89919d] cursor-not-allowed",
+      ].join(" ")}
+      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+    >
+      Siguiente pregunta
+      <span className="material-symbols-outlined">arrow_forward</span>
+    </button>
+  );
+
+  const finishBtn = (
+    <button
+      onClick={finishEarly}
+      disabled={results.length === 0}
+      className={[
+        "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 border transition-all",
+        results.length > 0
+          ? "border-[#ff6b6b]/30 text-[#ff6b6b] hover:bg-[#ff6b6b]/10"
+          : "border-[#404752]/10 text-[#89919d] cursor-not-allowed",
+      ].join(" ")}
+      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+    >
+      <span className="material-symbols-outlined text-base">flag</span>
+      Terminar sesión
+    </button>
+  );
 
   return (
     <>
@@ -101,13 +185,13 @@ export default function TrainerContainer() {
                   className="text-[#9ecaff] tracking-widest uppercase text-xs mb-1"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  Visual Fretboard Training
+                  {isScale ? "Scale Training" : "Visual Fretboard Training"}
                 </p>
                 <h1
                   className="text-2xl font-bold leading-tight tracking-tight text-[#e5e2e1]"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  Identificación de Intervalos
+                  {isScale ? "Escalas Mayores" : "Identificación de Intervalos"}
                 </h1>
               </div>
 
@@ -129,56 +213,18 @@ export default function TrainerContainer() {
               {/* Instructions */}
               <div className="p-4 bg-[#20201f] rounded-lg border border-[#404752]/10">
                 <p className="text-[#bfc7d4] text-sm leading-relaxed">
-                  Localiza el intervalo solicitado en el mástil tomando como
-                  referencia la tónica indicada. Selecciona todas las posiciones
-                  correctas y presiona <strong className="text-[#e5e2e1]">Verificar</strong>.
+                  {isScale
+                    ? "Completa la escala en el mástil partiendo de la tónica indicada. Selecciona todas las posiciones correctas y presiona "
+                    : "Localiza el intervalo solicitado en el mástil tomando como referencia la tónica indicada. Selecciona todas las posiciones correctas y presiona "}
+                  <strong className="text-[#e5e2e1]">Verificar</strong>.
                 </p>
               </div>
 
-              {/* Action buttons — desktop only (hidden on mobile, shown via fixed bar) */}
+              {/* Action buttons — desktop only */}
               <div className="hidden lg:flex flex-col gap-3">
-                <button
-                  onClick={verify}
-                  disabled={!hasSelection || feedbackState !== "idle"}
-                  className={[
-                    "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 transition-all active:scale-95",
-                    hasSelection && feedbackState === "idle"
-                      ? "cta-gradient text-[#002c4f] hover:opacity-90"
-                      : "bg-[#2a2a2a] text-[#89919d] cursor-not-allowed",
-                  ].join(" ")}
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                >
-                  <span className="material-symbols-outlined">check_circle</span>
-                  Verificar
-                </button>
-                <button
-                  onClick={nextQuestion}
-                  disabled={feedbackState === "idle"}
-                  className={[
-                    "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 border border-[#404752]/10 transition-all",
-                    feedbackState !== "idle"
-                      ? "bg-[#353535] text-[#e5e2e1] hover:bg-[#393939]"
-                      : "bg-[#1c1b1b] text-[#89919d] cursor-not-allowed",
-                  ].join(" ")}
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                >
-                  Siguiente pregunta
-                  <span className="material-symbols-outlined">arrow_forward</span>
-                </button>
-                <button
-                  onClick={finishEarly}
-                  disabled={results.length === 0}
-                  className={[
-                    "w-full py-4 px-6 font-bold rounded-md flex items-center justify-center gap-2 border transition-all",
-                    results.length > 0
-                      ? "border-[#ff6b6b]/30 text-[#ff6b6b] hover:bg-[#ff6b6b]/10"
-                      : "border-[#404752]/10 text-[#89919d] cursor-not-allowed",
-                  ].join(" ")}
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                >
-                  <span className="material-symbols-outlined text-base">flag</span>
-                  Terminar sesión
-                </button>
+                {verifyBtn}
+                {nextBtn}
+                {finishBtn}
               </div>
             </div>
           </section>
@@ -196,11 +242,7 @@ export default function TrainerContainer() {
                   className="text-xl font-bold text-[#e5e2e1]"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  Selecciona un intervalo de{" "}
-                  <span className="text-[#9ecaff]">{question.intervalSymbol}</span>
-                  <span className="text-[#bfc7d4] text-sm font-normal ml-2">
-                    ({question.intervalLabel})
-                  </span>
+                  {questionHeadline}
                 </h2>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">
@@ -244,13 +286,7 @@ export default function TrainerContainer() {
             <div className="mt-6 space-y-3">
               <FeedbackBanner
                 state={feedbackState}
-                message={
-                  feedbackState === "correct"
-                    ? `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
-                    : feedbackState === "incorrect"
-                      ? `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`
-                      : undefined
-                }
+                message={feedbackMessage}
               />
             </div>
 
@@ -266,12 +302,12 @@ export default function TrainerContainer() {
           </div>
         </div>
       </main>
+
       {/* ── Mobile-only fixed action bar ────────────────────────────────────── */}
-      {/* Sits above the BottomNavBar (which is ~72px tall) */}
       <div
         className="lg:hidden fixed left-0 right-0 z-40 flex gap-2 px-4 py-3"
         style={{
-          bottom: 90, // clear the BottomNavBar
+          bottom: 90,
           backgroundColor: "rgba(19, 19, 19, 0.92)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",

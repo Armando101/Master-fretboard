@@ -101,6 +101,7 @@ export function getCorrectPositions(
 // ── Question model ────────────────────────────────────────────────────────────
 
 export interface QuestionData {
+  kind: "interval";
   tonicString: StringName;
   tonicFret: number;
   tonicNote: NoteName;
@@ -134,6 +135,7 @@ export function generateQuestion(): QuestionData {
     const tonicNote = midiToTonicName(tonicMidi) as NoteName;
 
     return {
+      kind: "interval",
       tonicString,
       tonicFret,
       tonicNote,

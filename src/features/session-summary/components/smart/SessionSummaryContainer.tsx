@@ -11,7 +11,7 @@ import type { IntervalResult } from "../../domain/session-summary.types";
 
 export default function SessionSummaryContainer() {
   const router = useRouter();
-  const { phase, results, resetSession } = useSessionStore();
+  const { phase, config, results, resetSession } = useSessionStore();
 
   // Guard: must be in summary phase
   useEffect(() => {
@@ -19,33 +19,41 @@ export default function SessionSummaryContainer() {
     if (phase === "training") router.replace("/trainer");
   }, [phase, router]);
 
-  // Aggregate results by interval symbol
-  const intervalBreakdown = results.reduce<Record<string, IntervalResult>>(
+  // Aggregate results by groupKey (intervalSymbol for intervals, position for scales)
+  const breakdown = results.reduce<Record<string, IntervalResult>>(
     (acc, r) => {
-      if (!acc[r.intervalSymbol]) {
-        acc[r.intervalSymbol] = {
-          symbol: r.intervalSymbol,
-          label: r.intervalLabel,
+      if (!acc[r.groupKey]) {
+        acc[r.groupKey] = {
+          symbol: r.groupKey,
+          label:  r.groupLabel,
           correct: 0,
-          total: 0,
+          total:   0,
         };
       }
-      acc[r.intervalSymbol].total += 1;
-      if (r.wasCorrect) acc[r.intervalSymbol].correct += 1;
+      acc[r.groupKey].total   += 1;
+      if (r.wasCorrect) acc[r.groupKey].correct += 1;
       return acc;
     },
     {}
   );
 
+  // Sort order depends on session type
   const INTERVAL_ORDER = ["2m","2M","3m","3M","4J","5J","6m","6M","7m","7M","8"];
-  const intervalResults = Object.values(intervalBreakdown).sort((a, b) => {
+  const SCALE_POS_ORDER = ["Derecha", "Centro", "Izquierda"];
+
+  const isScaleSession = config?.sessionType === "scale";
+
+  const groupResults = Object.values(breakdown).sort((a, b) => {
     // Primary: most correct first
     if (b.correct !== a.correct) return b.correct - a.correct;
-    // Tie-break: canonical interval order
-    return INTERVAL_ORDER.indexOf(a.symbol) - INTERVAL_ORDER.indexOf(b.symbol);
+    // Tie-break: canonical order per session type
+    const order = isScaleSession ? SCALE_POS_ORDER : INTERVAL_ORDER;
+    return order.indexOf(a.symbol) - order.indexOf(b.symbol);
   });
-  const totalCorrect = results.filter((r) => r.wasCorrect).length;
-  const total = results.length;
+
+  const totalCorrect  = results.filter((r) => r.wasCorrect).length;
+  const total         = results.length;
+  const breakdownTitle = isScaleSession ? "Position Breakdown" : "Interval Breakdown";
 
   const handleReset = () => {
     resetSession();
@@ -62,21 +70,21 @@ export default function SessionSummaryContainer() {
       <main className="pt-24 px-6 pb-32 max-w-2xl mx-auto w-full">
         <ScoreHero correct={totalCorrect} total={total} />
 
-        {/* Interval breakdown */}
+        {/* Breakdown */}
         <section className="space-y-4">
           <h3
             className="text-xl font-medium text-[#bfc7d4] flex items-center gap-2"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             <span className="material-symbols-outlined text-[#ffe2ab]">analytics</span>
-            Interval Breakdown
+            {breakdownTitle}
           </h3>
 
-          {intervalResults.length === 0 ? (
+          {groupResults.length === 0 ? (
             <p className="text-[#89919d] text-sm">No hay resultados.</p>
           ) : (
             <div className="grid gap-3">
-              {intervalResults.map((result) => (
+              {groupResults.map((result) => (
                 <IntervalResultRow key={result.symbol} result={result} />
               ))}
             </div>

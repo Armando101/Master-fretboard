@@ -226,3 +226,97 @@ Botón de finalizar, esto por si el usuario quiere finalizar antes de que termin
 Si el usuario seleccionó 20 preguntas y al final, solo hizo 15 y da click en el botón de terminar, en las estadísticas dirá Número de respues correctas sobre 15, NO sobre 20
 
 El orden de los intervalos mostrados en la pantalla final de estadísticas debe estar ordenado del intervalo con mayor preguntas acertadas, al intervalo con menor preguntas acertadas. Para los intervalos que tienen el mismo número de preguntas acertadas, se ordenan por orden de intervalo, siendo el intervalo de 2m el primero y el intervalo de 8va el último
+
+### Escalas
+
+En este momento sólo se desarrollara el soporte a preguntas sobre escala mayor, a una 8va y en las cuerdas restantes dada una tónica. La escala se puede preguntar a la derecha, centro o izquierda.
+
+1 8va - Ejemplo en A
+
+Derecha 
+
+- A B C# → cuerda 6, trastes 5, 7 y 9
+- D E F# → cuerda 5, trastes 5, 7 y 9
+- G# A → cuerda 4, trates 6 y 7
+
+Centro
+
+- A B → cuerda 6, trastes 5 y 7
+- C# D E → cuerda 5, trastes 4, 5 y 7
+- F# G# A → cuerda 4, trastes 4, 6 y 7
+
+Izquierda 
+
+- A → cuerda 6, traste 5
+- B C# D → cuerda 5, trastes 2, 4, 5
+- E F# G# → cuerda 4, trastes 2, 4, 6
+- A → cuerda 3, traste 2
+
+En las 6 cuerdas
+
+Derecha 
+
+- A B C# → cuerda 6, trastes 5, 7 y 9
+- D E F# → cuerda 5, trastes 5, 7 y 9
+- G# A B → cuerda 4, trates 6, 7 y 9
+- C# D E → cuerda 3, trastes 6, 7 y 9
+- F# G# A → cuerda 2, trastes 7, 9 y 10
+- B C# D → cuerda 1, trastes 7, 9 y 10
+
+Centro
+
+- A B → cuerda 6, trastes 5 y 7
+- C# D E → cuerda 5, trastes 4, 5 y 7
+- F# G# A → cuerda 4, trastes 4, 6 y 7
+- B C# D → cuerda 3, trastes 4, 6 y 7
+- E F# G# → cuerda 2, traste 5, 7 y 9
+- A B C# → cuerda 1, traste 5, 7 y 9
+
+Izquierda 
+
+- A → cuerda 6, traste 5
+- B C# D → cuerda 5, trastes 2, 4, 5
+- E F# G# → cuerda 4, trastes 2, 4, 6
+- A B C#→ cuerda 3, traste 2, 4, 6
+- D E F# → cuerda 2, traste 3, 5, 7
+- G# A B → cuerda 1, traste 4, 5, 7
+
+Se da una tónica y a partir de ahí el usuario debe completar según lo que se le pida, la escala a una 8va o en todas las cuerdas restantes, entiéndase por cuerdas restantes, lo siguiente: si la tónica se da en la cuerda 4, el usuario debe completar la escala desde la cuerda 4 hasta la 1 (cuerdas 5 y 6 se omiten). Si se da la tónica en la cuerda 5, la escala se debe completar desde esa cuerda hasta la 1 (cuerda 6 se omite).
+
+Los trastes de tónica pueden ser:
+
+- Derecha: Del traste 1 al 12
+- Centro: Del traste 2 al 12
+- Izquierda: Del traste 4 al 12
+
+Las cuerdas disponibles tanto para 1 8va como para todas las restantes son:
+
+- Derecha: Cuerdas 3 a la 6.
+- Centro: Cuerdas 3 a la 6
+- Izquierda: Cuerdas 4 a la 6
+
+La única escala que es la misma tanto si se pide una 8va o si se pide todas las cuerdas restantes, es la escala al centro en 3ra cuerda, ejemplo
+
+Ejemplo tomando en cuenta que la tónica está en cuerda 3 tónica en C traste 5, Al centro.
+
+- C D → cuerda 3, traste 5 y 6
+- E F G → cuerda 2, traste 5, 6, 8
+- A B C → cuerda 1, traste 5, 7 y 8
+
+En total es una 8va y también son todas las cuerdas posibles, ya no hay más, por lo tanto esta sería una respuesta válida tanto para una 8va como para todas las cuerdas restantes.
+
+Ejemplo tomando en cuenta que la tónica está en cuerda 4 tónica en G traste 5,  a la izquierda, a una 8va.
+
+- G → cuerda 4, traste 5
+- A B C → cuerda 3, trastes 2, 4, 5
+- D E F# → cuerda 2, trastes 3, 5, 7
+- G → cuerda 1, traste 3
+
+Lo mismo pero en todas las cuerdas restantes
+
+- G → cuerda 4, traste 5
+- A B C → cuerda 3, trastes 2, 4, 5
+- D E F# → cuerda 2, trastes 3, 5, 7
+- G A B → cuerda 1, traste 3, 5, 7
+
+Como se puede ver, aquí las dos respuestas son diferentes por una diferencia de dos notas.
