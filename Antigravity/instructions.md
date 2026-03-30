@@ -224,3 +224,5 @@ Por lo tanto la tónica nunca será A#, en su lugar será Bb, estás son las 15 
 Botón de finalizar, esto por si el usuario quiere finalizar antes de que termine el total de preguntas a hacer, redirecciona a la pantalla de estadísticas y muestra el total de preguntas hechas en lugar de las seleccionadas.
 
 Si el usuario seleccionó 20 preguntas y al final, solo hizo 15 y da click en el botón de terminar, en las estadísticas dirá Número de respues correctas sobre 15, NO sobre 20
+
+El orden de los intervalos mostrados en la pantalla final de estadísticas debe estar ordenado del intervalo con mayor preguntas acertadas, al intervalo con menor preguntas acertadas. Para los intervalos que tienen el mismo número de preguntas acertadas, se ordenan por orden de intervalo, siendo el intervalo de 2m el primero y el intervalo de 8va el último

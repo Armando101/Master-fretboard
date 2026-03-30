@@ -37,7 +37,13 @@ export default function SessionSummaryContainer() {
     {}
   );
 
-  const intervalResults = Object.values(intervalBreakdown);
+  const INTERVAL_ORDER = ["2m","2M","3m","3M","4J","5J","6m","6M","7m","7M","8"];
+  const intervalResults = Object.values(intervalBreakdown).sort((a, b) => {
+    // Primary: most correct first
+    if (b.correct !== a.correct) return b.correct - a.correct;
+    // Tie-break: canonical interval order
+    return INTERVAL_ORDER.indexOf(a.symbol) - INTERVAL_ORDER.indexOf(b.symbol);
+  });
   const totalCorrect = results.filter((r) => r.wasCorrect).length;
   const total = results.length;
 
