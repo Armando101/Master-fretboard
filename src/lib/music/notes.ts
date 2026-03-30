@@ -1,8 +1,63 @@
-// ── Chromatic scale ───────────────────────────────────────────────────────────
-export const CHROMATIC = [
+// ── Chromatic scale (sharps only — used for raw MIDI lookup) ──────────────────
+const CHROMATIC_SHARPS = [
   "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
 ] as const;
-export type NoteName = (typeof CHROMATIC)[number];
+
+// ── Extended note name type (includes flats) ──────────────────────────────────
+export type NoteName =
+  | "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "E#" | "Fb"
+  | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb"
+  | "B" | "B#" | "Cb";
+
+// ── The 15 major scales with correct enharmonic note names ────────────────────
+// Each array: [I, II, III, IV, V, VI, VII] — 7 distinct pitch classes
+const MAJOR_SCALES: Record<string, readonly string[]> = {
+  C:  ["C",  "D",  "E",  "F",  "G",  "A",  "B" ],
+  G:  ["G",  "A",  "B",  "C",  "D",  "E",  "F#"],
+  D:  ["D",  "E",  "F#", "G",  "A",  "B",  "C#"],
+  A:  ["A",  "B",  "C#", "D",  "E",  "F#", "G#"],
+  E:  ["E",  "F#", "G#", "A",  "B",  "C#", "D#"],
+  B:  ["B",  "C#", "D#", "E",  "F#", "G#", "A#"],
+  "F#": ["F#", "G#", "A#", "B",  "C#", "D#", "E#"],
+  "C#": ["C#", "D#", "E#", "F#", "G#", "A#", "B#"],
+  F:  ["F",  "G",  "A",  "Bb", "C",  "D",  "E" ],
+  Bb: ["Bb", "C",  "D",  "Eb", "F",  "G",  "A" ],
+  Eb: ["Eb", "F",  "G",  "Ab", "Bb", "C",  "D" ],
+  Ab: ["Ab", "Bb", "C",  "Db", "Eb", "F",  "G" ],
+  Db: ["Db", "Eb", "F",  "Gb", "Ab", "Bb", "C" ],
+  Gb: ["Gb", "Ab", "Bb", "Cb", "Db", "Eb", "F" ],
+  Cb: ["Cb", "Db", "Eb", "Fb", "Gb", "Ab", "Bb"],
+};
+
+// ── Map from note name → MIDI pitch class (0–11) ──────────────────────────────
+const NOTE_TO_PC: Record<string, number> = {
+  "Cb": 11, "C": 0,  "C#": 1,  "Db": 1,
+  "D": 2,   "D#": 3, "Eb": 3,
+  "E": 4,   "E#": 5, "Fb": 4,
+  "F": 5,   "F#": 6, "Gb": 6,
+  "G": 7,   "G#": 8, "Ab": 8,
+  "A": 9,   "A#": 10,"Bb": 10,
+  "B": 11,  "B#": 0,
+};
+
+/**
+ * Build a lookup table: tonicName → Map<pitchClass, properNoteName>
+ * This tells us, for any tonic, how each of the 7 pitch classes in that key
+ * should be spelled.
+ */
+const SCALE_PC_TO_NAME: Record<string, Map<number, string>> = {};
+
+for (const [tonic, scale] of Object.entries(MAJOR_SCALES)) {
+  const map = new Map<number, string>();
+  for (const note of scale) {
+    const pc = NOTE_TO_PC[note];
+    if (pc !== undefined) map.set(pc, note);
+  }
+  SCALE_PC_TO_NAME[tonic] = map;
+}
+
+// ── The 15 valid tonics (by their canonical note name) ────────────────────────
+export const VALID_TONICS = Object.keys(MAJOR_SCALES) as (keyof typeof MAJOR_SCALES)[];
 
 // ── Standard tuning: MIDI number of each open string ─────────────────────────
 // Guitar strings in ascending pitch order (low E6 → high E1)
@@ -45,7 +100,43 @@ export function fretToMidi(string: StringName, fret: number): number {
   return STRING_OPEN_MIDI[string] + fret;
 }
 
-/** Return the note name (e.g. "A", "C#") for a MIDI pitch */
-export function midiToName(midi: number): NoteName {
-  return CHROMATIC[((midi % 12) + 12) % 12];
+/**
+ * Return the note name for a MIDI pitch.
+ *
+ * When `tonicName` is provided, the name is resolved from the major scale
+ * that starts on that tonic — ensuring proper enharmonic spelling
+ * (e.g. Bb instead of A#, Db instead of C#).
+ *
+ * If the pitch class is not found in that scale (which can happen for
+ * chromatic/non-diatonic notes), falls back to the sharp spelling.
+ */
+export function midiToName(midi: number, tonicName?: string): NoteName {
+  const pc = ((midi % 12) + 12) % 12;
+
+  if (tonicName && SCALE_PC_TO_NAME[tonicName]) {
+    const name = SCALE_PC_TO_NAME[tonicName].get(pc);
+    if (name) return name as NoteName;
+  }
+
+  // Fallback: sharp spelling
+  return CHROMATIC_SHARPS[pc] as NoteName;
+}
+
+/**
+ * Given a MIDI pitch, return the canonical tonic name that matches
+ * one of the 15 major scales. Used so the tonic note is always spelled
+ * correctly (e.g. Bb not A#, Db not C#).
+ *
+ * Returns the sharp name if no matching tonic is found (shouldn't happen).
+ */
+export function midiToTonicName(midi: number): string {
+  const pc = ((midi % 12) + 12) % 12;
+
+  // Find a valid tonic whose pitch class matches
+  const match = VALID_TONICS.find((t) => {
+    const tonicPc = NOTE_TO_PC[t];
+    return tonicPc === pc;
+  });
+
+  return match ?? CHROMATIC_SHARPS[pc];
 }

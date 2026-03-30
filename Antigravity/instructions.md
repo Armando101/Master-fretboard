@@ -194,3 +194,28 @@ Ejemplo de intervalos izq y der. A manera de ejemplo todos están con tónica en
 - 2da cuerda
     - Derecha: No hay
     - Izquierda: No hay
+
+- Los nombres de las notas de las escala deben ser de esta manera.
+    - Ejemplo 3m de G no es A#, es Bb
+    - Ejemplo: 2m de C no es C#, es Db
+    - Para esto te proveo las 15 escalas mayores posibles para que te bases en esto
+
+Escalas posibles:
+
+- C: C D E F G A B C
+- G: G A B C D E F# G
+- D:  D E F# G A B C# D
+- A: A B C# D E F# G# A
+- E: E F# G# A B C# D# E
+- B: B C# D# E F# G# A# B
+- F#: F# G# A# B C# D# E# F#
+- C#: C# D# E# F# G# A# B# C#
+- F: F G A Bb C D E F
+- Bb: Bb C D Eb F G A Bb
+- Eb: Eb F G Ab Bb C D Eb
+- Ab: Ab C Db Eb F G Ab
+- Db: Db Eb F Gb Ab Bb C Db
+- Gb: Gb Ab Bb Cb Db Eb F Gb
+- Cb: Cb Db Eb Fb Gb Ab Bb Cb
+
+Por lo tanto la tónica nunca será A#, en su lugar será Bb, estás son las 15 tónicas y escalas posibles.

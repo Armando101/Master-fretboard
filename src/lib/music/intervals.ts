@@ -4,6 +4,7 @@ import {
   getTargetString,
   fretToMidi,
   midiToName,
+  midiToTonicName,
   type StringName,
   type NoteName,
 } from "./notes";
@@ -129,7 +130,8 @@ export function generateQuestion(): QuestionData {
     if (correctPositions.length === 0) continue; // retry
 
     const tonicMidi = fretToMidi(tonicString, tonicFret);
-    const tonicNote = midiToName(tonicMidi);
+    // Use the canonical enharmonic tonic name (e.g. Bb not A#, Db not C#)
+    const tonicNote = midiToTonicName(tonicMidi) as NoteName;
 
     return {
       tonicString,
