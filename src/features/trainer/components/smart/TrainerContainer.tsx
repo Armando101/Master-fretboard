@@ -87,34 +87,47 @@ export default function TrainerContainer() {
   if (!question) return null;
 
   // ── Question header content (differs by kind) ────────────────────────────
-  const isScale = question.kind === "scale";
+  const questionKind = question.kind; // "interval" | "scale" | "triad"
 
-  const questionHeadline = isScale ? (
-    <>
-      Escala Mayor —{" "}
-      <span className="text-[#9ecaff]">{question.position}</span>
-      <span className="text-[#bfc7d4] text-sm font-normal ml-2">
-        ({question.scopeLabel})
-      </span>
-    </>
-  ) : (
-    <>
-      Selecciona un intervalo de{" "}
-      <span className="text-[#9ecaff]">{question.intervalSymbol}</span>
-      <span className="text-[#bfc7d4] text-sm font-normal ml-2">
-        ({question.intervalLabel})
-      </span>
-    </>
-  );
+  const questionHeadline =
+    questionKind === "scale" ? (
+      <>
+        Escala Mayor —{" "}
+        <span className="text-[#9ecaff]">{question.position}</span>
+        <span className="text-[#bfc7d4] text-sm font-normal ml-2">
+          ({question.scopeLabel})
+        </span>
+      </>
+    ) : questionKind === "triad" ? (
+      <>
+        Tríada{" "}
+        <span className="text-[#9ecaff]">{question.qualityLabel}</span>
+        <span className="text-[#bfc7d4] text-sm font-normal ml-2">
+          — fundamental
+        </span>
+      </>
+    ) : (
+      <>
+        Selecciona un intervalo de{" "}
+        <span className="text-[#9ecaff]">{question.intervalSymbol}</span>
+        <span className="text-[#bfc7d4] text-sm font-normal ml-2">
+          ({question.intervalLabel})
+        </span>
+      </>
+    );
 
   const feedbackMessage =
     feedbackState === "correct"
-      ? isScale
+      ? questionKind === "scale"
         ? `¡Correcto! Completaste la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
+        : questionKind === "triad"
+        ? `¡Correcto! Localizaste la tríada ${question.qualityLabel} de ${question.tonicNote}.`
         : `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
       : feedbackState === "incorrect"
-      ? isScale
+      ? questionKind === "scale"
         ? `Incorrecto. Las posiciones en verde son la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
+        : questionKind === "triad"
+        ? `Incorrecto. Las posiciones en verde son la tríada ${question.qualityLabel} de ${question.tonicNote}.`
         : `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`
       : undefined;
 
@@ -185,13 +198,21 @@ export default function TrainerContainer() {
                   className="text-[#9ecaff] tracking-widest uppercase text-xs mb-1"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {isScale ? "Scale Training" : "Visual Fretboard Training"}
+                  {questionKind === "scale"
+                    ? "Scale Training"
+                    : questionKind === "triad"
+                    ? "Triad Training"
+                    : "Visual Fretboard Training"}
                 </p>
                 <h1
                   className="text-2xl font-bold leading-tight tracking-tight text-[#e5e2e1]"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {isScale ? "Escalas Mayores" : "Identificación de Intervalos"}
+                  {questionKind === "scale"
+                    ? "Escalas Mayores"
+                    : questionKind === "triad"
+                    ? "Tríadas Cerradas"
+                    : "Identificación de Intervalos"}
                 </h1>
               </div>
 
@@ -213,8 +234,10 @@ export default function TrainerContainer() {
               {/* Instructions */}
               <div className="p-4 bg-[#20201f] rounded-lg border border-[#404752]/10">
                 <p className="text-[#bfc7d4] text-sm leading-relaxed">
-                  {isScale
+                  {questionKind === "scale"
                     ? "Completa la escala en el mástil partiendo de la tónica indicada. Selecciona todas las posiciones correctas y presiona "
+                    : questionKind === "triad"
+                    ? "Selecciona las 2 notas restantes de la tríada (tercera y quinta) tomando como referencia la tónica indicada. Presiona "
                     : "Localiza el intervalo solicitado en el mástil tomando como referencia la tónica indicada. Selecciona todas las posiciones correctas y presiona "}
                   <strong className="text-[#e5e2e1]">Verificar</strong>.
                 </p>

@@ -1,19 +1,21 @@
 import { create } from "zustand";
 import { generateQuestion, positionsMatch } from "@/lib/music/intervals";
 import { generateScaleQuestion } from "@/lib/music/scales";
+import { generateTriadQuestion } from "@/lib/music/triads";
 import { fireConfetti } from "@/lib/confetti";
 import type { QuestionData, Position } from "@/lib/music/intervals";
 import type { ScaleQuestionData } from "@/lib/music/scales";
+import type { TriadQuestionData } from "@/lib/music/triads";
 import type { TrainingMode, QuestionCount } from "@/features/main-menu/domain/main-menu.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type Phase         = "menu" | "training" | "summary";
 export type FeedbackState = "idle" | "correct" | "incorrect";
-export type SessionType   = "interval" | "scale";
+export type SessionType   = "interval" | "scale" | "triad";
 
 /** Discriminated union — branch on `question.kind` in components. */
-export type AnyQuestion = QuestionData | ScaleQuestionData;
+export type AnyQuestion = QuestionData | ScaleQuestionData | TriadQuestionData;
 
 export interface SessionConfig {
   mode: TrainingMode;
@@ -58,7 +60,9 @@ function posKey(p: Position) {
 }
 
 function makeNextQuestion(sessionType: SessionType): AnyQuestion {
-  return sessionType === "scale" ? generateScaleQuestion() : generateQuestion();
+  if (sessionType === "scale") return generateScaleQuestion();
+  if (sessionType === "triad") return generateTriadQuestion();
+  return generateQuestion();
 }
 
 function makeResult(question: AnyQuestion, wasCorrect: boolean): QuestionResult {
@@ -66,6 +70,13 @@ function makeResult(question: AnyQuestion, wasCorrect: boolean): QuestionResult 
     return {
       groupKey:   question.position,
       groupLabel: `${question.positionLabel} — ${question.scopeLabel}`,
+      wasCorrect,
+    };
+  }
+  if (question.kind === "triad") {
+    return {
+      groupKey:   question.quality,
+      groupLabel: question.qualityLabel,
       wasCorrect,
     };
   }
@@ -92,7 +103,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   // ── startSession ──────────────────────────────────────────────────────────
   startSession(partialConfig) {
     const sessionType: SessionType =
-      partialConfig.mode === "scales" ? "scale" : "interval";
+      partialConfig.mode === "scales"        ? "scale" :
+      partialConfig.mode === "closed-triads" ? "triad" :
+      "interval";
     const config: SessionConfig = { ...partialConfig, sessionType };
     const question = makeNextQuestion(sessionType);
     set({
