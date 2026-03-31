@@ -320,3 +320,41 @@ Lo mismo pero en todas las cuerdas restantes
 - G A B → cuerda 1, traste 3, 5, 7
 
 Como se puede ver, aquí las dos respuestas son diferentes por una diferencia de dos notas.
+
+
+# Triadas
+Necesito que en la pantalla inicial agregues dos select box que sólo se va a activar cuando el usuario seleccione la opción de preguntar triadas.
+
+Los select box va a tener las siguientes opciones de triada:
+
+- Todas
+- Fundamental
+- 1ra Inversión
+- 2da Inversión
+
+Y el otro estas opciones de cualidades
+
+- Todas
+- Mayor
+- Menor
+- Sus2
+- Sus4
+- Disminuido
+- Aumentado
+
+Las triadas las preguntar dando la tónica, misma dinámica que en la sección de intervalos y escalas.
+
+### Triadas fundamentales
+
+La tónica puede estar en las cuerdas [6, 5, 4, 3].
+
+Y se va a preguntar del traste 5 al traste 12.
+
+Ejemplo: Todas con tónica en el traste 5 y cuerda 6
+
+- Tónica A, cualidad: Mayor → A C# E → Cuerdas 6, 5 y 4, trastes 5, 4 y 2
+- Tónica A, cualidad: Menor → A C E → Cuerdas 6, 5 y 4, trastes 5, 3 y 2
+- Tónica A, cualidad: Sus2 → A B E → Cuerdas 6, 5 y 4, trastes 5, 2 y 2
+- Tónica A, cualidad: Sus4 → A D E → Cuerdas 6, 5 y 4, trastes 5, 5 y 2
+- Tónica A, cualidad: Disminuido → A C Eb → Cuerdas 6, 5 y 4, trastes 5, 3 y 1
+- Tónica A, cualidad: Aumentado → A C# E# → Cuerdas 6, 5 y 4, trastes 5, 4 y 3

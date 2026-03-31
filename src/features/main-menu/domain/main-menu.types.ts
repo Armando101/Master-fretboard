@@ -1,6 +1,40 @@
-export type TrainingMode = "intervals" | "closed-triads" | "inversions" | "scales";
+export type TrainingMode = "intervals" | "closed-triads" | "scales";
 
 export type QuestionCount = 10 | 25 | 50 | null; // null = infinite (∞)
+
+// ── Triads ───────────────────────────────────────────────────────────────────
+
+export type TriadInversion = "all" | "fundamental" | "first" | "second";
+export type TriadQuality = "all" | "major" | "minor" | "sus2" | "sus4" | "diminished" | "augmented";
+
+export interface TriadInversionOption {
+  value: TriadInversion;
+  label: string;
+  enabled: boolean; // false = shown but disabled (coming soon)
+}
+
+export interface TriadQualityOption {
+  value: TriadQuality;
+  label: string;
+  enabled: boolean;
+}
+
+export const TRIAD_INVERSION_OPTIONS: TriadInversionOption[] = [
+  { value: "all", label: "Todas", enabled: false },
+  { value: "fundamental", label: "Fundamental", enabled: true },
+  { value: "first", label: "1ra Inversión", enabled: false },
+  { value: "second", label: "2da Inversión", enabled: false },
+];
+
+export const TRIAD_QUALITY_OPTIONS: TriadQualityOption[] = [
+  { value: "all", label: "Todas", enabled: true },
+  { value: "major", label: "Mayor", enabled: true },
+  { value: "minor", label: "Menor", enabled: true },
+  { value: "sus2", label: "Sus2", enabled: true },
+  { value: "sus4", label: "Sus4", enabled: true },
+  { value: "diminished", label: "Disminuido", enabled: true },
+  { value: "augmented", label: "Aumentado", enabled: true },
+];
 
 export interface TrainingModeOption {
   mode: TrainingMode;
@@ -26,13 +60,6 @@ export const TRAINING_MODE_OPTIONS: TrainingModeOption[] = [
     accentColor: "secondary",
   },
   {
-    mode: "inversions",
-    icon: "rebase_edit",
-    title: "Closed Triads — Inversions",
-    description: "Master root, 1st, and 2nd inversions across the neck.",
-    accentColor: "tertiary",
-  },
-  {
     mode: "scales",
     icon: "blur_linear",
     title: "Scales",
@@ -42,8 +69,8 @@ export const TRAINING_MODE_OPTIONS: TrainingModeOption[] = [
 ];
 
 export const QUESTION_COUNT_OPTIONS: Array<{ value: QuestionCount; label: string }> = [
-  { value: 10,   label: "10" },
-  { value: 25,   label: "25" },
-  { value: 50,   label: "50" },
+  { value: 10, label: "10" },
+  { value: 25, label: "25" },
+  { value: 50, label: "50" },
   { value: null, label: "∞" },
 ];
