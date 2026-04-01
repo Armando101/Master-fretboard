@@ -21,13 +21,18 @@ export default function MainMenuContainer() {
 
   const [selectedMode,      setSelectedMode]      = useState<TrainingMode>("intervals");
   const [selectedCount,     setSelectedCount]      = useState<QuestionCount>(10);
-  const [selectedInversion, setSelectedInversion]  = useState<TriadInversion>("fundamental");
-  const [selectedQuality,   setSelectedQuality]    = useState<TriadQuality>("all");
+  const [selectedInversions, setSelectedInversions]  = useState<TriadInversion[]>(["fundamental"]);
+  const [selectedQualities,   setSelectedQualities]    = useState<TriadQuality[]>([
+    "major", "minor", "sus2", "sus4", "diminished", "augmented"
+  ]);
 
   const handleStart = () => {
     startSession({
       mode: selectedMode,
       totalQuestions: selectedCount ?? Infinity,
+      // Pass the arrays if the session store is ever updated to support them
+      // triadInversions: selectedInversions,
+      // triadQualities: selectedQualities,
     });
     router.push("/trainer");
   };
@@ -92,10 +97,10 @@ export default function MainMenuContainer() {
             selectedCount={selectedCount}
             onSelectCount={setSelectedCount}
             selectedMode={selectedMode}
-            selectedInversion={selectedInversion}
-            onSelectInversion={setSelectedInversion}
-            selectedQuality={selectedQuality}
-            onSelectQuality={setSelectedQuality}
+            selectedInversions={selectedInversions}
+            onSelectInversions={setSelectedInversions}
+            selectedQualities={selectedQualities}
+            onSelectQualities={setSelectedQualities}
             onStart={handleStart}
           />
         </section>
