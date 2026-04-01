@@ -20,10 +20,10 @@ export interface TriadQualityOption {
 }
 
 export const TRIAD_INVERSION_OPTIONS: TriadInversionOption[] = [
-  { value: "all", label: "Todas", enabled: false },
-  { value: "fundamental", label: "Fundamental", enabled: true },
-  { value: "first", label: "1ra Inversión", enabled: false },
-  { value: "second", label: "2da Inversión", enabled: false },
+  { value: "all",         label: "Todas",         enabled: true },
+  { value: "fundamental", label: "Fundamental",   enabled: true },
+  { value: "first",       label: "1ra Inversión", enabled: true },
+  { value: "second",      label: "2da Inversión", enabled: true },
 ];
 
 export const TRIAD_QUALITY_OPTIONS: TriadQualityOption[] = [

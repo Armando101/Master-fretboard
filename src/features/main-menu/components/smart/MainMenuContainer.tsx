@@ -7,6 +7,7 @@ import BottomNavBar from "@/shared/components/ui/BottomNavBar";
 import TrainingModeCard from "../ui/TrainingModeCard";
 import SessionParameters from "../ui/SessionParameters";
 import { useSessionStore } from "@/store/session.store";
+import type { TriadInversion as MusicTriadInversion } from "@/lib/music/triads";
 import {
   TRAINING_MODE_OPTIONS,
   type TrainingMode,
@@ -19,10 +20,10 @@ export default function MainMenuContainer() {
   const router = useRouter();
   const startSession = useSessionStore((s) => s.startSession);
 
-  const [selectedMode,      setSelectedMode]      = useState<TrainingMode>("intervals");
-  const [selectedCount,     setSelectedCount]      = useState<QuestionCount>(10);
+  const [selectedMode,       setSelectedMode]       = useState<TrainingMode>("intervals");
+  const [selectedCount,      setSelectedCount]       = useState<QuestionCount>(10);
   const [selectedInversions, setSelectedInversions]  = useState<TriadInversion[]>(["fundamental"]);
-  const [selectedQualities,   setSelectedQualities]    = useState<TriadQuality[]>([
+  const [selectedQualities,  setSelectedQualities]   = useState<TriadQuality[]>([
     "major", "minor", "sus2", "sus4", "diminished", "augmented"
   ]);
 
@@ -30,11 +31,14 @@ export default function MainMenuContainer() {
     const qualitiesToPass = selectedQualities.filter(
       (q): q is Exclude<TriadQuality, "all"> => q !== "all"
     );
+    const inversionsToPass = selectedInversions.filter(
+      (i): i is MusicTriadInversion => i !== "all"
+    );
 
     startSession({
       mode: selectedMode,
       totalQuestions: selectedCount ?? Infinity,
-      triadInversions: selectedInversions,
+      triadInversions: inversionsToPass,
       triadQualities: qualitiesToPass,
     });
     router.push("/trainer");

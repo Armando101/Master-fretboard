@@ -358,3 +358,33 @@ Ejemplo: Todas con tónica en el traste 5 y cuerda 6
 - Tónica A, cualidad: Sus4 → A D E → Cuerdas 6, 5 y 4, trastes 5, 5 y 2
 - Tónica A, cualidad: Disminuido → A C Eb → Cuerdas 6, 5 y 4, trastes 5, 3 y 1
 - Tónica A, cualidad: Aumentado → A C# E# → Cuerdas 6, 5 y 4, trastes 5, 4 y 3
+
+### 1ra Inversión
+
+La tónica puede estar en las cuerdas [4, 3, 2, 1].
+
+Y se va a preguntar dando la tónica del traste 2 al traste 12.
+
+Ejemplo: Todas con tónica en el traste 7 y cuerda 4
+
+- Tónica A, cualidad: Mayor → C# E A → Cuerdas 6, 5 y 4, trastes 9, 7 y 7
+- Tónica A, cualidad: Menor → C E A → Cuerdas 6, 5 y 4, trastes 8, 7 y 7
+- Tónica A, cualidad: Sus2 → B E A → Cuerdas 6, 5 y 4, trastes 7, 7 y 7
+- Tónica A, cualidad: Sus4 → D E A → Cuerdas 6, 5 y 4, trastes 10, 7 y 7
+- Tónica A, cualidad: Disminuido → C Eb A → Cuerdas 6, 5 y 4, trastes 8, 6 y 7
+- Tónica A, cualidad: Aumentado → C# E# A → Cuerdas 6, 5 y 4, trastes 9, 8 y 7
+
+### 2da Inversión
+
+La tónica puede estar en las cuerdas [5, 4, 3, 2].
+
+Y se va a preguntar dando la tónica del traste 4 al traste 12.
+
+Ejemplo: Todas con tónica en el traste 12 y cuerda 5
+
+- Tónica A, cualidad: Mayor → E A C# → Cuerdas 6, 5 y 4, trastes 12, 12 y 11
+- Tónica A, cualidad: Menor → E A C → Cuerdas 6, 5 y 4, trastes 12, 12 y 10
+- Tónica A, cualidad: Sus2 → E A B → Cuerdas 6, 5 y 4, trastes 12, 12 y 9
+- Tónica A, cualidad: Sus4 → E A D → Cuerdas 6, 5 y 4, trastes 12, 12 y 12
+- Tónica A, cualidad: Disminuido → Eb A C → Cuerdas 6, 5 y 4, trastes 11, 12 y 10
+- Tónica A, cualidad: Aumentado → E# A C# → Cuerdas 6, 5 y 4, trastes 13, 12 y 11

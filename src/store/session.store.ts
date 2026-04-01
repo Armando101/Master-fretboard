@@ -7,7 +7,7 @@ import type { QuestionData, Position } from "@/lib/music/intervals";
 import type { ScaleQuestionData } from "@/lib/music/scales";
 import type { TriadQuestionData } from "@/lib/music/triads";
 import type { TrainingMode, QuestionCount, TriadInversion } from "@/features/main-menu/domain/main-menu.types";
-import type { TriadQuality as MusicTriadQuality } from "@/lib/music/triads";
+import type { TriadQuality as MusicTriadQuality, TriadInversion as MusicTriadInversion } from "@/lib/music/triads";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ export interface SessionConfig {
   mode: TrainingMode;
   sessionType: SessionType;
   totalQuestions: number; // Infinity for unlimited
-  triadInversions?: TriadInversion[];
+  triadInversions?: MusicTriadInversion[];
   triadQualities?: MusicTriadQuality[];
 }
 
@@ -64,7 +64,7 @@ function posKey(p: Position) {
 
 function makeNextQuestion(config: SessionConfig): AnyQuestion {
   if (config.sessionType === "scale") return generateScaleQuestion();
-  if (config.sessionType === "triad") return generateTriadQuestion(config.triadQualities);
+  if (config.sessionType === "triad") return generateTriadQuestion(config.triadQualities, config.triadInversions);
   return generateQuestion();
 }
 

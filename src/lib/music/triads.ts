@@ -1,8 +1,8 @@
 import {
-  getCumulativeOffset,
   getTargetString,
   fretToMidi,
   midiToTonicName,
+  STRING_OPEN_MIDI,
   type StringName,
   type NoteName,
 } from "./notes";
@@ -18,16 +18,21 @@ export type TriadQuality =
   | "diminished"
   | "augmented";
 
+/** Music-domain inversion type — does NOT include "all" (that is a UI-only concept). */
+export type TriadInversion = "fundamental" | "first" | "second";
+
 export interface TriadQuestionData {
   kind: "triad";
+  inversion: TriadInversion;
+  inversionLabel: string;
   tonicString: StringName;
   tonicFret: number;
   tonicNote: NoteName;
   quality: TriadQuality;
   qualityLabel: string;
   /**
-   * Only note2 (3rd) and note3 (5th).
-   * The tónica is already shown in blue — the user does NOT select it.
+   * The two non-tonic positions the user must select.
+   * The tónica is already displayed in blue — the user does NOT select it.
    */
   correctPositions: Position[];
 }
@@ -36,9 +41,9 @@ export interface TriadQuestionData {
 
 interface TriadFormula {
   label: string;
-  /** Semitones above tonic for note 2 (third/sus) */
+  /** Semitones above tonic for the third (or sus interval) */
   third: number;
-  /** Semitones above tonic for note 3 (fifth) */
+  /** Semitones above tonic for the fifth */
   fifth: number;
 }
 
@@ -55,72 +60,170 @@ const ALL_QUALITIES: TriadQuality[] = [
   "major", "minor", "sus2", "sus4", "diminished", "augmented",
 ];
 
-// ── Fret constraints ──────────────────────────────────────────────────────────
+const ALL_INVERSIONS: TriadInversion[] = ["fundamental", "first", "second"];
+
+const INVERSION_LABELS: Record<TriadInversion, string> = {
+  fundamental: "Fundamental",
+  first:       "1ra Inversión",
+  second:      "2da Inversión",
+};
+
+// ── Per-inversion constraints ─────────────────────────────────────────────────
+
+interface InversionConfig {
+  /** Valid tonic strings for this inversion */
+  tonicStrings: StringName[];
+  tonicFretMin: number;
+  tonicFretMax: number;
+  getPositions: (
+    tonicString: StringName,
+    tonicFret: number,
+    quality: TriadQuality,
+  ) => Position[] | null;
+}
+
+// ── Core position calculators ─────────────────────────────────────────────────
 
 /**
- * Valid tonic strings: E6 (guitar 6), A (5), D (4), G (3).
- * Each needs at least 2 adjacent strings above to place the full triad.
+ * Fundamental: tonic is the lowest (bass) string.
+ *   - 3rd on tonicString + 1
+ *   - 5th on tonicString + 2
+ *
+ * Fret formula (via MIDI arithmetic, identical to cumulative-offset approach):
+ *   fret = tonicMidi + interval - STRING_OPEN_MIDI[targetString]
  */
-const VALID_TONIC_STRINGS: StringName[] = ["E6", "A", "D", "G"];
-
-const TONIC_FRET_MIN = 5;
-const TONIC_FRET_MAX = 12;
-
-// ── Core algorithm ────────────────────────────────────────────────────────────
-
-/**
- * Compute the two non-tonic positions for a fundamental closed triad.
- *
- * The triad spans 3 consecutive strings starting at the tonic string:
- *   string1 (tonic) — string2 (third) — string3 (fifth)
- *
- * Fret formula:
- *   fret_2 = tonicFret + third_semitones  − cumulativeOffset(tonicString, 1)
- *   fret_3 = tonicFret + fifth_semitones  − cumulativeOffset(tonicString, 2)
- *
- * Returns null if either fret falls outside [0, 20].
- */
-export function getTriadPositions(
+function getFundamentalPositions(
   tonicString: StringName,
   tonicFret: number,
   quality: TriadQuality,
 ): Position[] | null {
-  const formula  = TRIAD_FORMULAS[quality];
-  const string2  = getTargetString(tonicString, 1);
-  const string3  = getTargetString(tonicString, 2);
-  if (!string2 || !string3) return null;
+  const formula   = TRIAD_FORMULAS[quality];
+  const strThird  = getTargetString(tonicString, 1);
+  const strFifth  = getTargetString(tonicString, 2);
+  if (!strThird || !strFifth) return null;
 
-  const offset1 = getCumulativeOffset(tonicString, 1);
-  const offset2 = getCumulativeOffset(tonicString, 2);
+  const tonicMidi = fretToMidi(tonicString, tonicFret);
+  const fretThird = tonicMidi + formula.third - STRING_OPEN_MIDI[strThird];
+  const fretFifth = tonicMidi + formula.fifth - STRING_OPEN_MIDI[strFifth];
 
-  const fret2 = tonicFret + formula.third - offset1;
-  const fret3 = tonicFret + formula.fifth - offset2;
-
-  if (fret2 < 0 || fret2 > 20 || fret3 < 0 || fret3 > 20) return null;
+  if (fretThird < 0 || fretThird > 20 || fretFifth < 0 || fretFifth > 20) return null;
 
   return [
-    { string: string2, fret: fret2 },
-    { string: string3, fret: fret3 },
+    { string: strThird, fret: fretThird },
+    { string: strFifth, fret: fretFifth },
   ];
 }
 
+/**
+ * 1st Inversion: tonic is the highest (treble) string.
+ *   - 3rd → 2 strings BELOW tonic, one octave down: tonicMidi + third - 12
+ *   - 5th → 1 string  BELOW tonic, one octave down: tonicMidi + fifth  - 12
+ *
+ * Example (A, fret 7, D-string):
+ *   3rd C# → E6 string, fret 9   (MIDI 49 = 57 + 4 − 12, fret = 49 − 40)
+ *   5th E  → A  string, fret 7   (MIDI 52 = 57 + 7 − 12, fret = 52 − 45)
+ */
+function getFirstInversionPositions(
+  tonicString: StringName,
+  tonicFret: number,
+  quality: TriadQuality,
+): Position[] | null {
+  const formula   = TRIAD_FORMULAS[quality];
+  const strFifth  = getTargetString(tonicString, -1); // 1 string below
+  const strThird  = getTargetString(tonicString, -2); // 2 strings below
+  if (!strFifth || !strThird) return null;
+
+  const tonicMidi = fretToMidi(tonicString, tonicFret);
+  const fretThird = tonicMidi + formula.third - 12 - STRING_OPEN_MIDI[strThird];
+  const fretFifth = tonicMidi + formula.fifth - 12 - STRING_OPEN_MIDI[strFifth];
+
+  if (fretThird < 0 || fretThird > 20 || fretFifth < 0 || fretFifth > 20) return null;
+
+  return [
+    { string: strThird, fret: fretThird },
+    { string: strFifth, fret: fretFifth },
+  ];
+}
+
+/**
+ * 2nd Inversion: tonic is the middle string.
+ *   - 5th → 1 string BELOW tonic, one octave down: tonicMidi + fifth - 12
+ *   - 3rd → 1 string ABOVE tonic, same octave:      tonicMidi + third
+ *
+ * Example (A, fret 12, A-string):
+ *   5th E  → E6 string, fret 12  (MIDI 52 = 57 + 7 − 12, fret = 52 − 40)
+ *   3rd C# → D  string, fret 11  (MIDI 61 = 57 + 4,       fret = 61 − 50)
+ */
+function getSecondInversionPositions(
+  tonicString: StringName,
+  tonicFret: number,
+  quality: TriadQuality,
+): Position[] | null {
+  const formula   = TRIAD_FORMULAS[quality];
+  const strFifth  = getTargetString(tonicString, -1); // 1 string below
+  const strThird  = getTargetString(tonicString,  1); // 1 string above
+  if (!strFifth || !strThird) return null;
+
+  const tonicMidi = fretToMidi(tonicString, tonicFret);
+  const fretFifth = tonicMidi + formula.fifth - 12 - STRING_OPEN_MIDI[strFifth];
+  const fretThird = tonicMidi + formula.third      - STRING_OPEN_MIDI[strThird];
+
+  if (fretFifth < 0 || fretFifth > 20 || fretThird < 0 || fretThird > 20) return null;
+
+  return [
+    { string: strFifth, fret: fretFifth },
+    { string: strThird, fret: fretThird },
+  ];
+}
+
+// ── Inversion configs ─────────────────────────────────────────────────────────
+
+const INVERSION_CONFIGS: Record<TriadInversion, InversionConfig> = {
+  fundamental: {
+    tonicStrings: ["E6", "A", "D", "G"],
+    tonicFretMin: 5,
+    tonicFretMax: 12,
+    getPositions: getFundamentalPositions,
+  },
+  first: {
+    /** Tonic is the treble string; needs 2 strings below → D, G, B, E1 */
+    tonicStrings: ["D", "G", "B", "E1"],
+    tonicFretMin: 2,
+    tonicFretMax: 12,
+    getPositions: getFirstInversionPositions,
+  },
+  second: {
+    /** Tonic is the middle string; needs 1 string below and 1 above → A, D, G, B */
+    tonicStrings: ["A", "D", "G", "B"],
+    tonicFretMin: 4,
+    tonicFretMax: 12,
+    getPositions: getSecondInversionPositions,
+  },
+};
+
 // ── Question generation ───────────────────────────────────────────────────────
 
-/** Generate a random fundamental closed-triad question. */
-export function generateTriadQuestion(allowedQualities?: TriadQuality[]): TriadQuestionData {
-  const MAX_ATTEMPTS = 200;
-  const qualities = allowedQualities?.length ? allowedQualities : ALL_QUALITIES;
+export function generateTriadQuestion(
+  allowedQualities?: TriadQuality[],
+  allowedInversions?: TriadInversion[],
+): TriadQuestionData {
+  const MAX_ATTEMPTS = 400;
+  const qualities   = allowedQualities?.length  ? allowedQualities  : ALL_QUALITIES;
+  const inversions  = allowedInversions?.length ? allowedInversions : ALL_INVERSIONS;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    const quality = qualities[Math.floor(Math.random() * qualities.length)];
-    const tonicString = VALID_TONIC_STRINGS[
-      Math.floor(Math.random() * VALID_TONIC_STRINGS.length)
+    const inversion  = inversions[Math.floor(Math.random() * inversions.length)];
+    const quality    = qualities[Math.floor(Math.random() * qualities.length)];
+    const cfg        = INVERSION_CONFIGS[inversion];
+
+    const tonicString = cfg.tonicStrings[
+      Math.floor(Math.random() * cfg.tonicStrings.length)
     ];
     const tonicFret =
-      TONIC_FRET_MIN +
-      Math.floor(Math.random() * (TONIC_FRET_MAX - TONIC_FRET_MIN + 1));
+      cfg.tonicFretMin +
+      Math.floor(Math.random() * (cfg.tonicFretMax - cfg.tonicFretMin + 1));
 
-    const correctPositions = getTriadPositions(tonicString, tonicFret, quality);
+    const correctPositions = cfg.getPositions(tonicString, tonicFret, quality);
     if (!correctPositions) continue;
 
     const tonicMidi = fretToMidi(tonicString, tonicFret);
@@ -128,6 +231,8 @@ export function generateTriadQuestion(allowedQualities?: TriadQuality[]): TriadQ
 
     return {
       kind: "triad",
+      inversion,
+      inversionLabel: INVERSION_LABELS[inversion],
       tonicString,
       tonicFret,
       tonicNote,

@@ -103,7 +103,7 @@ export default function TrainerContainer() {
         Tríada{" "}
         <span className="text-[#9ecaff]">{question.qualityLabel}</span>
         <span className="text-[#bfc7d4] text-sm font-normal ml-2">
-          — fundamental
+          — {question.inversionLabel}
         </span>
       </>
     ) : (
