@@ -27,12 +27,15 @@ export default function MainMenuContainer() {
   ]);
 
   const handleStart = () => {
+    const qualitiesToPass = selectedQualities.filter(
+      (q): q is Exclude<TriadQuality, "all"> => q !== "all"
+    );
+
     startSession({
       mode: selectedMode,
       totalQuestions: selectedCount ?? Infinity,
-      // Pass the arrays if the session store is ever updated to support them
-      // triadInversions: selectedInversions,
-      // triadQualities: selectedQualities,
+      triadInversions: selectedInversions,
+      triadQualities: qualitiesToPass,
     });
     router.push("/trainer");
   };

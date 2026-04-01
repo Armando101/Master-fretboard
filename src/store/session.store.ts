@@ -6,7 +6,8 @@ import { fireConfetti } from "@/lib/confetti";
 import type { QuestionData, Position } from "@/lib/music/intervals";
 import type { ScaleQuestionData } from "@/lib/music/scales";
 import type { TriadQuestionData } from "@/lib/music/triads";
-import type { TrainingMode, QuestionCount } from "@/features/main-menu/domain/main-menu.types";
+import type { TrainingMode, QuestionCount, TriadInversion } from "@/features/main-menu/domain/main-menu.types";
+import type { TriadQuality as MusicTriadQuality } from "@/lib/music/triads";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,8 @@ export interface SessionConfig {
   mode: TrainingMode;
   sessionType: SessionType;
   totalQuestions: number; // Infinity for unlimited
+  triadInversions?: TriadInversion[];
+  triadQualities?: MusicTriadQuality[];
 }
 
 export interface QuestionResult {
@@ -59,9 +62,9 @@ function posKey(p: Position) {
   return `${p.string}-${p.fret}`;
 }
 
-function makeNextQuestion(sessionType: SessionType): AnyQuestion {
-  if (sessionType === "scale") return generateScaleQuestion();
-  if (sessionType === "triad") return generateTriadQuestion();
+function makeNextQuestion(config: SessionConfig): AnyQuestion {
+  if (config.sessionType === "scale") return generateScaleQuestion();
+  if (config.sessionType === "triad") return generateTriadQuestion(config.triadQualities);
   return generateQuestion();
 }
 
@@ -107,7 +110,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       partialConfig.mode === "closed-triads" ? "triad" :
       "interval";
     const config: SessionConfig = { ...partialConfig, sessionType };
-    const question = makeNextQuestion(sessionType);
+    const question = makeNextQuestion(config);
     set({
       phase: "training",
       config,
@@ -174,7 +177,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
       return;
     }
 
-    const nextQuestion = makeNextQuestion(config.sessionType);
+    const nextQuestion = makeNextQuestion(config);
     set({
       question: nextQuestion,
       selectedPositions: [],

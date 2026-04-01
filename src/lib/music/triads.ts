@@ -107,11 +107,12 @@ export function getTriadPositions(
 // ── Question generation ───────────────────────────────────────────────────────
 
 /** Generate a random fundamental closed-triad question. */
-export function generateTriadQuestion(): TriadQuestionData {
+export function generateTriadQuestion(allowedQualities?: TriadQuality[]): TriadQuestionData {
   const MAX_ATTEMPTS = 200;
+  const qualities = allowedQualities?.length ? allowedQualities : ALL_QUALITIES;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    const quality = ALL_QUALITIES[Math.floor(Math.random() * ALL_QUALITIES.length)];
+    const quality = qualities[Math.floor(Math.random() * qualities.length)];
     const tonicString = VALID_TONIC_STRINGS[
       Math.floor(Math.random() * VALID_TONIC_STRINGS.length)
     ];
