@@ -64,15 +64,15 @@ export default function TrainerContainer() {
     }
   }
 
-  const correctCount    = results.filter((r) => r.wasCorrect).length;
-  const stats           = { correct: correctCount, total: results.length };
-  const totalQuestions  = config?.totalQuestions ?? 0;
+  const correctCount = results.filter((r) => r.wasCorrect).length;
+  const stats = { correct: correctCount, total: results.length };
+  const totalQuestions = config?.totalQuestions ?? 0;
   const questionProgress = `${currentQuestionIndex + 1} / ${Number.isFinite(totalQuestions) ? totalQuestions : "∞"}`;
-  const hasSelection    = selectedPositions.length > 0;
+  const hasSelection = selectedPositions.length > 0;
 
   const handleCellClick = (stringName: StringName, fret: number) => {
     if (feedbackState !== "idle") return;
-    const pos    = { string: stringName, fret };
+    const pos = { string: stringName, fret };
     const posKey = `${stringName}-${fret}`;
     const alreadySelected = selectedPositions.some(
       (p) => `${p.string}-${p.fret}` === posKey
@@ -116,20 +116,29 @@ export default function TrainerContainer() {
       </>
     );
 
-  const feedbackMessage =
-    feedbackState === "correct"
-      ? questionKind === "scale"
+  const getFeedbackMessage = () => {
+    if (feedbackState !== "correct" && feedbackState !== "incorrect") {
+      return undefined;
+    }
+
+    if (questionKind === "scale") {
+      return feedbackState === "correct"
         ? `¡Correcto! Completaste la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
-        : questionKind === "triad"
+        : `Incorrecto. Las posiciones en verde son la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`;
+    }
+
+    if (questionKind === "triad") {
+      return feedbackState === "correct"
         ? `¡Correcto! Localizaste la tríada ${question.qualityLabel} de ${question.tonicNote}.`
-        : `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
-      : feedbackState === "incorrect"
-      ? questionKind === "scale"
-        ? `Incorrecto. Las posiciones en verde son la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
-        : questionKind === "triad"
-        ? `Incorrecto. Las posiciones en verde son la tríada ${question.qualityLabel} de ${question.tonicNote}.`
-        : `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`
-      : undefined;
+        : `Incorrecto. Las posiciones en verde son la tríada ${question.qualityLabel} de ${question.tonicNote}.`;
+    }
+
+    return feedbackState === "correct"
+      ? `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
+      : `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`;
+  };
+
+  const feedbackMessage = getFeedbackMessage();
 
   // ── Shared action-buttons ─────────────────────────────────────────────────
   const verifyBtn = (
@@ -201,8 +210,8 @@ export default function TrainerContainer() {
                   {questionKind === "scale"
                     ? "Scale Training"
                     : questionKind === "triad"
-                    ? "Triad Training"
-                    : "Visual Fretboard Training"}
+                      ? "Triad Training"
+                      : "Visual Fretboard Training"}
                 </p>
                 <h1
                   className="text-2xl font-bold leading-tight tracking-tight text-[#e5e2e1]"
@@ -211,8 +220,8 @@ export default function TrainerContainer() {
                   {questionKind === "scale"
                     ? "Escalas Mayores"
                     : questionKind === "triad"
-                    ? "Tríadas Cerradas"
-                    : "Identificación de Intervalos"}
+                      ? "Tríadas Cerradas"
+                      : "Identificación de Intervalos"}
                 </h1>
               </div>
 
@@ -237,8 +246,8 @@ export default function TrainerContainer() {
                   {questionKind === "scale"
                     ? "Completa la escala en el mástil partiendo de la tónica indicada. Selecciona todas las posiciones correctas y presiona "
                     : questionKind === "triad"
-                    ? "Selecciona las 2 notas restantes de la tríada (tercera y quinta) tomando como referencia la tónica indicada. Presiona "
-                    : "Localiza el intervalo solicitado en el mástil tomando como referencia la tónica indicada. Selecciona todas las posiciones correctas y presiona "}
+                      ? "Selecciona las 2 notas restantes de la tríada (tercera y quinta) tomando como referencia la tónica indicada. Presiona "
+                      : "Localiza el intervalo solicitado en el mástil tomando como referencia la tónica indicada. Selecciona todas las posiciones correctas y presiona "}
                   <strong className="text-[#e5e2e1]">Verificar</strong>.
                 </p>
               </div>
