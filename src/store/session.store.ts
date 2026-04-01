@@ -6,14 +6,14 @@ import { fireConfetti } from "@/lib/confetti";
 import type { QuestionData, Position } from "@/lib/music/intervals";
 import type { ScaleQuestionData } from "@/lib/music/scales";
 import type { TriadQuestionData } from "@/lib/music/triads";
-import type { TrainingMode, QuestionCount, TriadInversion } from "@/features/main-menu/domain/main-menu.types";
+import type { TrainingMode } from "@/features/main-menu/domain/main-menu.types";
 import type { TriadQuality as MusicTriadQuality, TriadInversion as MusicTriadInversion } from "@/lib/music/triads";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type Phase         = "menu" | "training" | "summary";
+export type Phase = "menu" | "training" | "summary";
 export type FeedbackState = "idle" | "correct" | "incorrect";
-export type SessionType   = "interval" | "scale" | "triad";
+export type SessionType = "interval" | "scale" | "triad";
 
 /** Discriminated union — branch on `question.kind` in components. */
 export type AnyQuestion = QuestionData | ScaleQuestionData | TriadQuestionData;
@@ -71,20 +71,20 @@ function makeNextQuestion(config: SessionConfig): AnyQuestion {
 function makeResult(question: AnyQuestion, wasCorrect: boolean): QuestionResult {
   if (question.kind === "scale") {
     return {
-      groupKey:   question.position,
+      groupKey: question.position,
       groupLabel: `${question.positionLabel} — ${question.scopeLabel}`,
       wasCorrect,
     };
   }
   if (question.kind === "triad") {
     return {
-      groupKey:   question.quality,
+      groupKey: question.quality,
       groupLabel: question.qualityLabel,
       wasCorrect,
     };
   }
   return {
-    groupKey:   question.intervalSymbol,
+    groupKey: question.intervalSymbol,
     groupLabel: question.intervalLabel,
     wasCorrect,
   };
@@ -106,9 +106,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   // ── startSession ──────────────────────────────────────────────────────────
   startSession(partialConfig) {
     const sessionType: SessionType =
-      partialConfig.mode === "scales"        ? "scale" :
-      partialConfig.mode === "closed-triads" ? "triad" :
-      "interval";
+      partialConfig.mode === "scales" ? "scale" :
+        partialConfig.mode === "closed-triads" ? "triad" :
+          "interval";
     const config: SessionConfig = { ...partialConfig, sessionType };
     const question = makeNextQuestion(config);
     set({
@@ -148,11 +148,11 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     const { question, selectedPositions, results } = get();
     if (!question || selectedPositions.length === 0) return;
 
-    const correct    = question.correctPositions;
-    const isCorrect  = positionsMatch(selectedPositions, correct);
+    const correct = question.correctPositions;
+    const isCorrect = positionsMatch(selectedPositions, correct);
     const correctSet = new Set(correct.map(posKey));
 
-    const revealedCorrect   = correct;
+    const revealedCorrect = correct;
     const revealedIncorrect = selectedPositions.filter((p) => !correctSet.has(posKey(p)));
 
     if (isCorrect) fireConfetti();
