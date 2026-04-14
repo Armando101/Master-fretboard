@@ -36,24 +36,3 @@ function NavItem({ icon, label, isActive }: NavItemProps) {
   );
 }
 
-interface BottomNavBarProps {
-  activeTab?: NavTab;
-}
-
-export default function BottomNavBar({ activeTab = "practice" }: BottomNavBarProps) {
-  return (
-    <nav
-      className="fixed bottom-0 left-0 w-full flex justify-around items-center pb-6 pt-3 px-8 z-50 border-t border-[#404752]/15"
-      style={{
-        backgroundColor: "rgba(19, 19, 19, 0.90)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        boxShadow: "0 -4px 32px rgba(0, 97, 164, 0.08)",
-      }}
-    >
-      <NavItem icon="fitness_center" label="Practice" isActive={activeTab === "practice"} />
-      <NavItem icon="library_music" label="Library"  isActive={activeTab === "library"} />
-      <NavItem icon="insights"      label="Progress"  isActive={activeTab === "progress"} />
-    </nav>
-  );
-}

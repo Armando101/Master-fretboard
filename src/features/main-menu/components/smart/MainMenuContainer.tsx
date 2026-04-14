@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
-import BottomNavBar from "@/shared/components/ui/BottomNavBar";
+
 import TrainingModeCard from "../ui/TrainingModeCard";
 import SessionParameters from "../ui/SessionParameters";
 import { useSessionStore } from "@/store/session.store";
@@ -47,7 +47,7 @@ export default function MainMenuContainer() {
   return (
     <>
       <TopAppBar />
-      <BottomNavBar activeTab="practice" />
+
 
       {/* Decorative fretboard string accents */}
       <div className="fixed bottom-24 left-0 w-full h-[1px] bg-[#393939]/20 z-0 pointer-events-none" />

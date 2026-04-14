@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
-import BottomNavBar from "@/shared/components/ui/BottomNavBar";
+
 import ScoreHero from "../ui/ScoreHero";
 import IntervalResultRow from "../ui/IntervalResultRow";
 import { useSessionStore } from "@/store/session.store";
@@ -65,7 +65,7 @@ export default function SessionSummaryContainer() {
   return (
     <>
       <TopAppBar />
-      <BottomNavBar activeTab="practice" />
+
 
       <main className="pt-24 px-6 pb-32 max-w-2xl mx-auto w-full">
         <ScoreHero correct={totalCorrect} total={total} />

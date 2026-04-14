@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
-import BottomNavBar from "@/shared/components/ui/BottomNavBar";
+
 import FretboardGrid from "../ui/FretboardGrid";
 import FeedbackBanner from "../ui/FeedbackBanner";
 import SessionSnapshot from "../ui/SessionSnapshot";
@@ -195,7 +195,7 @@ export default function TrainerContainer() {
   return (
     <>
       <TopAppBar />
-      <BottomNavBar activeTab="practice" />
+
 
       <main className="pt-24 pb-48 lg:pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* ── Left Column ── */}
