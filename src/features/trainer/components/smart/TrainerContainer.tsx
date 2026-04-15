@@ -9,7 +9,22 @@ import FretboardGrid from "../ui/FretboardGrid";
 import FeedbackBanner from "../ui/FeedbackBanner";
 import SessionSnapshot from "../ui/SessionSnapshot";
 import { useSessionStore } from "@/store/session.store";
+import { resolveIntervalNoteName, fretToMidi } from "@/lib/music/notes";
 import type { FretboardNotes, StringName } from "../../domain/trainer.types";
+
+/**
+ * Maps semitone distance from tonic to a "virtual" interval symbol so
+ * resolveIntervalNoteName can pick the correct scale degree + accidental.
+ * Used for triad exercises where individual notes are not labelled by symbol.
+ */
+const SEMITONES_TO_SYMBOL: Record<number, string> = {
+   1: "2m",  2: "2M",
+   3: "3m",  4: "3M",
+   5: "4J",  6: "5d",
+   7: "5J",  8: "5A",
+   9: "6M", 10: "7m",
+  11: "7M",
+};
 
 export default function TrainerContainer() {
   const router = useRouter();
@@ -64,6 +79,30 @@ export default function TrainerContainer() {
       }
       for (const pos of revealedIncorrect) {
         notes[`${pos.string}-${pos.fret}`] = "incorrect";
+      }
+    }
+  }
+
+  // ── Pre-compute degree-correct note names for labelled cells ──────────────
+  // Only needed after verify (correct / incorrect cells) — tonic is always right.
+  const noteNames: Record<string, string> = {};
+
+  if (question && feedbackState !== "idle") {
+    const tonicMidi = fretToMidi(question.tonicString, question.tonicFret);
+
+    for (const pos of revealedCorrect) {
+      const key  = `${pos.string}-${pos.fret}`;
+      const midi = fretToMidi(pos.string, pos.fret);
+
+      if (question.kind === "interval") {
+        noteNames[key] = resolveIntervalNoteName(midi, question.tonicNote, question.intervalSymbol);
+      } else {
+        // Triad / scale — derive a virtual interval symbol from semitone distance
+        // so resolveIntervalNoteName picks the right degree letter + accidental.
+        // Scale notes are all diatonic so they hit the fast-path anyway.
+        const semitones = ((midi - tonicMidi) % 12 + 12) % 12;
+        const sym = SEMITONES_TO_SYMBOL[semitones];
+        if (sym) noteNames[key] = resolveIntervalNoteName(midi, question.tonicNote, sym);
       }
     }
   }
@@ -310,6 +349,8 @@ export default function TrainerContainer() {
               notes={notes}
               onCellClick={handleCellClick}
               tonicFret={question.tonicFret}
+              tonicNote={question.tonicNote}
+              noteNames={noteNames}
             />
 
             {/* Feedback */}

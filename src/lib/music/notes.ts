@@ -140,3 +140,61 @@ export function midiToTonicName(midi: number): string {
 
   return match ?? CHROMATIC_SHARPS[pc];
 }
+
+// ── Interval-aware enharmonic resolution ─────────────────────────────────────
+
+/**
+ * Maps each interval symbol to the 0-based index of the major-scale degree
+ * that defines its letter name:
+ *   2nd → index 1, 3rd → index 2, 4th → index 3,
+ *   5th → index 4, 6th → index 5, 7th → index 6, 8va → index 0
+ */
+const INTERVAL_DEGREE_IDX: Record<string, number> = {
+  "2m": 1, "2M": 1,
+  "3m": 2, "3M": 2,
+  "4J": 3, "4A": 3,          // augmented 4th → 4th degree sharped
+  "5d": 4, "5J": 4, "5A": 4, // dim/perfect/aug 5th → 5th degree (flat/natural/sharp)
+  "6m": 5, "6M": 5,
+  "7m": 6, "7M": 6,
+  "8":  0,
+};
+
+/**
+ * Resolve the correct enharmonic spelling for an interval note using the
+ * degree implied by the interval symbol.
+ *
+ * Examples:
+ *  - 6m of G  → degree 6 = E, lower by 1 → Eb  (not D#)
+ *  - 2m of C  → degree 2 = D, lower by 1 → Db  (not C#)
+ *  - 5# of G  → degree 5 = D, raise by 1 → D#  (not Eb)
+ *
+ * Falls back to midiToName when the symbol or tonic is unrecognised.
+ */
+export function resolveIntervalNoteName(
+  midi: number,
+  tonicName: string,
+  intervalSymbol: string,
+): string {
+  const pc = ((midi % 12) + 12) % 12;
+
+  // Fast path: diatonic note → already correct in the scale map
+  const scaleMap = SCALE_PC_TO_NAME[tonicName];
+  if (scaleMap?.has(pc)) return scaleMap.get(pc)!;
+
+  // Chromatic note: derive letter from scale degree, then apply alteration
+  const degIdx = INTERVAL_DEGREE_IDX[intervalSymbol];
+  const scale  = MAJOR_SCALES[tonicName];
+  if (degIdx === undefined || !scale) return midiToName(midi, tonicName) as string;
+
+  const diatonicNote = scale[degIdx];          // e.g. "E", "G#", "Bb"
+  const letter       = diatonicNote[0];         // "E", "G", "B"
+  const diatonicPc   = NOTE_TO_PC[diatonicNote];
+  const diff         = ((pc - diatonicPc) % 12 + 12) % 12;
+
+  if (diff === 11) return `${letter}b`;    // one semitone below → flat
+  if (diff ===  1) return `${letter}#`;   // one semitone above → sharp
+  if (diff === 10) return `${letter}bb`;  // double flat  (rare)
+  if (diff ===  2) return `${letter}x`;   // double sharp (rare)
+
+  return midiToName(midi) as string; // unexpected, fallback
+}

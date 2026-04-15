@@ -56,6 +56,14 @@ interface FretboardGridProps {
   onCellClick?: (stringName: StringName, fret: number) => void;
   /** When provided, the fretboard auto-scrolls to center this fret on every change */
   tonicFret?: number;
+  /** Tonic note name for fallback enharmonic resolution */
+  tonicNote?: string;
+  /**
+   * Pre-computed note name overrides (key = "String-fret", e.g. "G-5").
+   * When present for a cell, used instead of midiToName — lets the caller
+   * inject degree-correct spellings (Eb not D#, Db not C#, etc.).
+   */
+  noteNames?: Record<string, string>;
 }
 
 // Frets 1–FRET_COUNT are interactive; fret 0 = open string in nut area
@@ -77,7 +85,7 @@ function rowCenter(rowIdx: number): number {
   return rowIdx * ROW_H + ROW_H / 2;
 }
 
-export default function FretboardGrid({ notes, onCellClick, tonicFret }: FretboardGridProps) {
+export default function FretboardGrid({ notes, onCellClick, tonicFret, tonicNote, noteNames }: FretboardGridProps) {
   const totalWidth = LABEL_W + NUT_W + FRET_COUNT * COL_W + 16;
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -233,7 +241,7 @@ export default function FretboardGrid({ notes, onCellClick, tonicFret }: Fretboa
               const shouldShowLabel =
                 state === "tonic" || state === "correct" || state === "incorrect";
               const noteName = shouldShowLabel
-                ? midiToName(fretToMidi(stringName, fret))
+                ? (noteNames?.[key] ?? midiToName(fretToMidi(stringName, fret), tonicNote))
                 : "";
 
               return (
