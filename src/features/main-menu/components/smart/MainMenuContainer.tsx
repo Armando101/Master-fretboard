@@ -9,12 +9,15 @@ import TrainingModeCard from "../ui/TrainingModeCard";
 import SessionParameters from "../ui/SessionParameters";
 import { useSessionStore } from "@/store/session.store";
 import type { TriadInversion as MusicTriadInversion } from "@/lib/music/triads";
+import { INTERVAL_POOL } from "@/lib/music/intervals";
 import {
   TRAINING_MODE_OPTIONS,
+  INTERVAL_OPTIONS,
   type TrainingMode,
   type QuestionCount,
   type TriadInversion,
   type TriadQuality,
+  type IntervalSymbol,
 } from "../../domain/main-menu.types";
 
 export default function MainMenuContainer() {
@@ -29,6 +32,13 @@ export default function MainMenuContainer() {
     "major", "minor", "sus2", "sus4", "diminished", "augmented"
   ]);
 
+  // Default: all intervals selected (every enabled, non-"all" option)
+  const allIntervalValues = INTERVAL_OPTIONS
+    .filter(o => o.value !== "all" && o.enabled)
+    .map(o => o.value as Exclude<IntervalSymbol, "all">);
+
+  const [selectedIntervals, setSelectedIntervals] = useState<IntervalSymbol[]>(allIntervalValues);
+
   const handleStart = () => {
     const qualitiesToPass = selectedQualities.filter(
       (q): q is Exclude<TriadQuality, "all"> => q !== "all"
@@ -36,12 +46,18 @@ export default function MainMenuContainer() {
     const inversionsToPass = selectedInversions.filter(
       (i): i is MusicTriadInversion => i !== "all"
     );
+    // For intervals: filter out the "all" sentinel and only pass symbols that
+    // actually exist in INTERVAL_POOL (guard against stale state)
+    const intervalSymbolsToPass = selectedIntervals
+      .filter((s): s is Exclude<IntervalSymbol, "all"> => s !== "all")
+      .filter((s) => INTERVAL_POOL.includes(s));
 
     startSession({
       mode: selectedMode,
       totalQuestions: selectedCount ?? Infinity,
       triadInversions: inversionsToPass,
       triadQualities: qualitiesToPass,
+      intervalSymbols: intervalSymbolsToPass,
     });
     router.push("/trainer");
   };
@@ -107,6 +123,8 @@ export default function MainMenuContainer() {
             onSelectInversions={setSelectedInversions}
             selectedQualities={selectedQualities}
             onSelectQualities={setSelectedQualities}
+            selectedIntervals={selectedIntervals}
+            onSelectIntervals={setSelectedIntervals}
             onStart={handleStart}
           />
         </section>

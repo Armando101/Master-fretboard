@@ -1,25 +1,35 @@
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
-import type { QuestionCount, TrainingMode, TriadInversion, TriadQuality } from "../../domain/main-menu.types";
+import type {
+  QuestionCount,
+  TrainingMode,
+  TriadInversion,
+  TriadQuality,
+  IntervalSymbol,
+} from "../../domain/main-menu.types";
 import {
   QUESTION_COUNT_OPTIONS,
   TRIAD_INVERSION_OPTIONS,
   TRIAD_QUALITY_OPTIONS,
+  INTERVAL_OPTIONS,
 } from "../../domain/main-menu.types";
 import type { Translations } from "@/i18n";
 
 interface SessionParametersProps {
-  selectedCount:      QuestionCount;
-  onSelectCount:      (count: QuestionCount) => void;
-  selectedMode:       TrainingMode;
-  selectedInversions: TriadInversion[];
-  onSelectInversions: (inv: TriadInversion[]) => void;
-  selectedQualities:  TriadQuality[];
-  onSelectQualities:  (q: TriadQuality[]) => void;
-  onStart:            () => void;
+  selectedCount:       QuestionCount;
+  onSelectCount:       (count: QuestionCount) => void;
+  selectedMode:        TrainingMode;
+  selectedInversions:  TriadInversion[];
+  onSelectInversions:  (inv: TriadInversion[]) => void;
+  selectedQualities:   TriadQuality[];
+  onSelectQualities:   (q: TriadQuality[]) => void;
+  selectedIntervals:   IntervalSymbol[];
+  onSelectIntervals:   (s: IntervalSymbol[]) => void;
+  onStart:             () => void;
 }
 
-const isTriadMode = (mode: TrainingMode) => mode === "closed-triads";
+const isTriadMode     = (mode: TrainingMode) => mode === "closed-triads";
+const isIntervalMode  = (mode: TrainingMode) => mode === "intervals";
 
 function useClickOutside(ref: React.RefObject<HTMLElement | null>, handler: () => void) {
   useEffect(() => {
@@ -39,8 +49,9 @@ function useClickOutside(ref: React.RefObject<HTMLElement | null>, handler: () =
 }
 
 // ── Typed option shapes (no label baked in) ───────────────────────────────────
-type InversionOptionWithLabel = { value: TriadInversion; label: string; enabled?: boolean };
-type QualityOptionWithLabel   = { value: TriadQuality;   label: string; enabled?: boolean };
+type InversionOptionWithLabel = { value: TriadInversion;  label: string; enabled?: boolean };
+type QualityOptionWithLabel   = { value: TriadQuality;    label: string; enabled?: boolean };
+type IntervalOptionWithLabel  = { value: IntervalSymbol;  label: string; enabled?: boolean };
 
 function MultiSelectDropdown<T extends string>({
   options,
@@ -170,7 +181,18 @@ function buildQualityOptions(
     value: opt.value,
     label: opt.enabled
       ? t[opt.value]
-      : `${t[opt.value]} — ${comingSoon}`,
+      : `${opt.value} — ${comingSoon}`,
+    enabled: opt.enabled,
+  }));
+}
+
+function buildIntervalOptions(
+  intervalLabels: Translations["trainer"]["intervalLabels"],
+  allLabel: string,
+): IntervalOptionWithLabel[] {
+  return INTERVAL_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: opt.value === "all" ? allLabel : intervalLabels[opt.value as keyof typeof intervalLabels] ?? opt.value,
     enabled: opt.enabled,
   }));
 }
@@ -185,15 +207,22 @@ export default function SessionParameters({
   onSelectInversions,
   selectedQualities,
   onSelectQualities,
+  selectedIntervals,
+  onSelectIntervals,
   onStart,
 }: SessionParametersProps) {
   const { t } = useLanguage();
   const sp = t.mainMenu.sessionParams;
-  const showTriadFilters = isTriadMode(selectedMode);
-  const isStartDisabled = showTriadFilters && (selectedInversions.length === 0 || selectedQualities.length === 0);
+  const showTriadFilters    = isTriadMode(selectedMode);
+  const showIntervalFilters = isIntervalMode(selectedMode);
+
+  const isStartDisabled =
+    (showTriadFilters    && (selectedInversions.length === 0 || selectedQualities.length === 0)) ||
+    (showIntervalFilters && selectedIntervals.length === 0);
 
   const inversionOptions = buildInversionOptions(t.mainMenu.triadInversions, sp.comingSoon);
   const qualityOptions   = buildQualityOptions(t.mainMenu.triadQualities, sp.comingSoon);
+  const intervalOptions  = buildIntervalOptions(t.trainer.intervalLabels, sp.allLabel);
 
   return (
     <div className="bg-[#1c1b1b] p-8 rounded-xl space-y-6">
@@ -229,6 +258,29 @@ export default function SessionParameters({
               </button>
             );
           })}
+        </div>
+      </div>
+
+      {/* ── Interval filter (only visible for intervals mode) ── */}
+      <div
+        className={[
+          "space-y-4 transition-all duration-300 ease-in-out",
+          showIntervalFilters
+            ? "max-h-[160px] opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none overflow-hidden",
+        ].join(" ")}
+      >
+        <div className="space-y-2 relative z-10">
+          <label className="block text-xs uppercase tracking-widest text-[#89919d]">
+            {sp.intervalFilter}
+          </label>
+          <MultiSelectDropdown<IntervalSymbol>
+            options={intervalOptions}
+            selectedValues={selectedIntervals}
+            onChange={onSelectIntervals}
+            placeholder={sp.selectInterval}
+            allLabel={sp.allLabel}
+          />
         </div>
       </div>
 

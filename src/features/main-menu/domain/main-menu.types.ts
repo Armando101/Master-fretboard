@@ -1,5 +1,37 @@
 export type TrainingMode = "intervals" | "closed-triads" | "scales";
 
+// ── Intervals ─────────────────────────────────────────────────────────────────
+
+export type IntervalSymbol =
+  | "all"
+  | "2m" | "2M"
+  | "3m" | "3M"
+  | "4J"
+  | "5J"
+  | "6m" | "6M"
+  | "7m" | "7M"
+  | "8";
+
+export interface IntervalOption {
+  value: IntervalSymbol;
+  enabled: boolean;
+}
+
+export const INTERVAL_OPTIONS: IntervalOption[] = [
+  { value: "all", enabled: true },
+  { value: "2m",  enabled: true },
+  { value: "2M",  enabled: true },
+  { value: "3m",  enabled: true },
+  { value: "3M",  enabled: true },
+  { value: "4J",  enabled: true },
+  { value: "5J",  enabled: true },
+  { value: "6m",  enabled: true },
+  { value: "6M",  enabled: true },
+  { value: "7m",  enabled: true },
+  { value: "7M",  enabled: true },
+  { value: "8",   enabled: true },
+];
+
 export type QuestionCount = 10 | 25 | 50 | null; // null = infinite (∞)
 
 // ── Triads ───────────────────────────────────────────────────────────────────
