@@ -1,3 +1,5 @@
+import LanguageSelector from "./LanguageSelector";
+
 interface TopAppBarProps {
   title?: string;
 }
@@ -24,9 +26,12 @@ export default function TopAppBar({ title = "Guitar Atelier" }: TopAppBarProps) 
         </span>
       </div>
 
-      {/* Right: avatar */}
-      <div className="w-8 h-8 rounded-full overflow-hidden border border-[#404752]/30 bg-[#353535] flex items-center justify-center">
-        <span className="material-symbols-outlined text-[#bfc7d4] text-base">person</span>
+      {/* Right: language selector + avatar */}
+      <div className="flex items-center gap-3">
+        <LanguageSelector />
+        <div className="w-8 h-8 rounded-full overflow-hidden border border-[#404752]/30 bg-[#353535] flex items-center justify-center">
+          <span className="material-symbols-outlined text-[#bfc7d4] text-base">person</span>
+        </div>
       </div>
     </header>
   );

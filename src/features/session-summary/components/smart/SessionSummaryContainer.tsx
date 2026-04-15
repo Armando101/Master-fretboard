@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import ScoreHero from "../ui/ScoreHero";
 import IntervalResultRow from "../ui/IntervalResultRow";
@@ -12,6 +13,8 @@ import type { IntervalResult } from "../../domain/session-summary.types";
 export default function SessionSummaryContainer() {
   const router = useRouter();
   const { phase, config, results, resetSession } = useSessionStore();
+  const { t } = useLanguage();
+  const sm = t.summary;
 
   // Guard: must be in summary phase
   useEffect(() => {
@@ -53,7 +56,7 @@ export default function SessionSummaryContainer() {
 
   const totalCorrect  = results.filter((r) => r.wasCorrect).length;
   const total         = results.length;
-  const breakdownTitle = isScaleSession ? "Position Breakdown" : "Interval Breakdown";
+  const breakdownTitle = isScaleSession ? sm.breakdownPosition : sm.breakdownInterval;
 
   const handleReset = () => {
     resetSession();
@@ -65,7 +68,6 @@ export default function SessionSummaryContainer() {
   return (
     <>
       <TopAppBar />
-
 
       <main className="pt-24 px-6 pb-32 max-w-2xl mx-auto w-full">
         <ScoreHero correct={totalCorrect} total={total} />
@@ -81,7 +83,7 @@ export default function SessionSummaryContainer() {
           </h3>
 
           {groupResults.length === 0 ? (
-            <p className="text-[#89919d] text-sm">No hay resultados.</p>
+            <p className="text-[#89919d] text-sm">{sm.noResults}</p>
           ) : (
             <div className="grid gap-3">
               {groupResults.map((result) => (
@@ -99,7 +101,7 @@ export default function SessionSummaryContainer() {
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             <span className="material-symbols-outlined">replay</span>
-            Nueva sesión
+            {sm.newSession}
           </button>
           <button
             onClick={handleReset}
@@ -107,7 +109,7 @@ export default function SessionSummaryContainer() {
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             <span className="material-symbols-outlined">home</span>
-            Volver al menú
+            {sm.backToMenu}
           </button>
         </section>
 
@@ -132,10 +134,10 @@ export default function SessionSummaryContainer() {
               className="text-[#ffe2ab] font-bold"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              ¡Sigue practicando!
+              {sm.keepPracticing}
             </p>
             <p className="text-[#bfc7d4] text-sm mt-1">
-              La consistencia es la clave para dominar el mástil.
+              {sm.consistencyKey}
             </p>
           </div>
         </div>

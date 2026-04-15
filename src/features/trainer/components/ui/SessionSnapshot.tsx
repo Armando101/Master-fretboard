@@ -1,3 +1,6 @@
+"use client";
+
+import { useLanguage } from "@/i18n/LanguageContext";
 import type { SessionStats } from "../../domain/trainer.types";
 
 interface SessionSnapshotProps {
@@ -5,6 +8,8 @@ interface SessionSnapshotProps {
 }
 
 export default function SessionSnapshot({ stats }: SessionSnapshotProps) {
+  const { t } = useLanguage();
+  const ss = t.trainer.sessionSnapshot;
   const accuracy =
     stats.total === 0 ? 0 : Math.round((stats.correct / stats.total) * 100);
 
@@ -14,12 +19,12 @@ export default function SessionSnapshot({ stats }: SessionSnapshotProps) {
         className="font-bold text-[#e5e2e1] mb-4"
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        Tu Sesión
+        {ss.title}
       </h3>
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[#20201f] p-4 rounded-lg">
           <p className="text-[10px] uppercase tracking-widest text-[#bfc7d4] mb-1">
-            Aciertos
+            {ss.hits}
           </p>
           <p
             className="text-2xl text-[#4edea3]"
@@ -30,7 +35,7 @@ export default function SessionSnapshot({ stats }: SessionSnapshotProps) {
         </div>
         <div className="bg-[#20201f] p-4 rounded-lg">
           <p className="text-[10px] uppercase tracking-widest text-[#bfc7d4] mb-1">
-            Precisión
+            {ss.accuracy}
           </p>
           <p
             className="text-2xl text-[#9ecaff]"

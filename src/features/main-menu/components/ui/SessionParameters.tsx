@@ -1,24 +1,25 @@
 import { useState, useRef, useEffect } from "react";
+import { useLanguage } from "@/i18n/LanguageContext";
 import type { QuestionCount, TrainingMode, TriadInversion, TriadQuality } from "../../domain/main-menu.types";
 import {
   QUESTION_COUNT_OPTIONS,
   TRIAD_INVERSION_OPTIONS,
   TRIAD_QUALITY_OPTIONS,
 } from "../../domain/main-menu.types";
+import type { Translations } from "@/i18n";
 
 interface SessionParametersProps {
-  selectedCount:    QuestionCount;
-  onSelectCount:    (count: QuestionCount) => void;
-  selectedMode:     TrainingMode;
+  selectedCount:      QuestionCount;
+  onSelectCount:      (count: QuestionCount) => void;
+  selectedMode:       TrainingMode;
   selectedInversions: TriadInversion[];
   onSelectInversions: (inv: TriadInversion[]) => void;
   selectedQualities:  TriadQuality[];
   onSelectQualities:  (q: TriadQuality[]) => void;
-  onStart:          () => void;
+  onStart:            () => void;
 }
 
-const isTriadMode = (mode: TrainingMode) =>
-  mode === "closed-triads";
+const isTriadMode = (mode: TrainingMode) => mode === "closed-triads";
 
 function useClickOutside(ref: React.RefObject<HTMLElement | null>, handler: () => void) {
   useEffect(() => {
@@ -37,16 +38,22 @@ function useClickOutside(ref: React.RefObject<HTMLElement | null>, handler: () =
   }, [ref, handler]);
 }
 
+// ── Typed option shapes (no label baked in) ───────────────────────────────────
+type InversionOptionWithLabel = { value: TriadInversion; label: string; enabled?: boolean };
+type QualityOptionWithLabel   = { value: TriadQuality;   label: string; enabled?: boolean };
+
 function MultiSelectDropdown<T extends string>({
   options,
   selectedValues,
   onChange,
-  placeholder
+  placeholder,
+  allLabel,
 }: {
   options: { value: T; label: string; enabled?: boolean }[];
   selectedValues: T[];
   onChange: (values: T[]) => void;
   placeholder: string;
+  allLabel: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,9 +67,9 @@ function MultiSelectDropdown<T extends string>({
   const handleToggle = (optionValue: T) => {
     if (optionValue === ("all" as T)) {
       if (isAllSelected) {
-         onChange([]);
+        onChange([]);
       } else {
-         onChange(allValues);
+        onChange(allValues);
       }
       return;
     }
@@ -74,10 +81,10 @@ function MultiSelectDropdown<T extends string>({
     }
   };
 
-  const displayText = selectedValues.length === 0 
-    ? placeholder 
-    : isAllSelected 
-      ? "Todos" 
+  const displayText = selectedValues.length === 0
+    ? placeholder
+    : isAllSelected
+      ? allLabel
       : selectedValues.map(v => options.find(o => o.value === v)?.label).filter(Boolean).join(", ");
 
   return (
@@ -94,9 +101,7 @@ function MultiSelectDropdown<T extends string>({
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
         <span className="truncate pr-4">{displayText}</span>
-        <span
-          className="material-symbols-outlined absolute right-3 text-[#89919d] text-base"
-        >
+        <span className="material-symbols-outlined absolute right-3 text-[#89919d] text-base">
           {isOpen ? "expand_less" : "expand_more"}
         </span>
       </button>
@@ -131,7 +136,7 @@ function MultiSelectDropdown<T extends string>({
                   )}
                 </div>
                 <span className="text-sm text-[#e5e2e1]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {isDisabled ? `${option.label} — próximamente` : option.label}
+                  {option.label}
                 </span>
               </label>
             );
@@ -141,6 +146,36 @@ function MultiSelectDropdown<T extends string>({
     </div>
   );
 }
+
+// ── Helpers: map domain values → translated label options ─────────────────────
+
+function buildInversionOptions(
+  t: Translations["mainMenu"]["triadInversions"],
+  comingSoon: string,
+): InversionOptionWithLabel[] {
+  return TRIAD_INVERSION_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: opt.enabled
+      ? t[opt.value]
+      : `${t[opt.value]} — ${comingSoon}`,
+    enabled: opt.enabled,
+  }));
+}
+
+function buildQualityOptions(
+  t: Translations["mainMenu"]["triadQualities"],
+  comingSoon: string,
+): QualityOptionWithLabel[] {
+  return TRIAD_QUALITY_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: opt.enabled
+      ? t[opt.value]
+      : `${t[opt.value]} — ${comingSoon}`,
+    enabled: opt.enabled,
+  }));
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export default function SessionParameters({
   selectedCount,
@@ -152,8 +187,13 @@ export default function SessionParameters({
   onSelectQualities,
   onStart,
 }: SessionParametersProps) {
+  const { t } = useLanguage();
+  const sp = t.mainMenu.sessionParams;
   const showTriadFilters = isTriadMode(selectedMode);
   const isStartDisabled = showTriadFilters && (selectedInversions.length === 0 || selectedQualities.length === 0);
+
+  const inversionOptions = buildInversionOptions(t.mainMenu.triadInversions, sp.comingSoon);
+  const qualityOptions   = buildQualityOptions(t.mainMenu.triadQualities, sp.comingSoon);
 
   return (
     <div className="bg-[#1c1b1b] p-8 rounded-xl space-y-6">
@@ -161,13 +201,13 @@ export default function SessionParameters({
         className="text-lg font-semibold text-[#e5e2e1]"
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        Session Parameters
+        {sp.title}
       </h3>
 
       {/* Question count selector */}
       <div className="space-y-4">
         <label className="block text-xs uppercase tracking-widest text-[#89919d]">
-          Number of Questions
+          {sp.numberOfQuestions}
         </label>
         <div className="flex gap-3">
           {QUESTION_COUNT_OPTIONS.map(({ value, label }) => {
@@ -204,26 +244,28 @@ export default function SessionParameters({
         {/* Inversion selector */}
         <div className="space-y-2 relative z-10">
           <label className="block text-xs uppercase tracking-widest text-[#89919d]">
-            Inversión
+            {sp.inversion}
           </label>
-          <MultiSelectDropdown
-            options={TRIAD_INVERSION_OPTIONS}
+          <MultiSelectDropdown<TriadInversion>
+            options={inversionOptions}
             selectedValues={selectedInversions}
             onChange={onSelectInversions}
-            placeholder="Selecciona inversión"
+            placeholder={sp.selectInversion}
+            allLabel={sp.allLabel}
           />
         </div>
 
         {/* Quality selector */}
         <div className="space-y-2 relative z-0">
           <label className="block text-xs uppercase tracking-widest text-[#89919d]">
-            Cualidad
+            {sp.quality}
           </label>
-          <MultiSelectDropdown
-            options={TRIAD_QUALITY_OPTIONS}
+          <MultiSelectDropdown<TriadQuality>
+            options={qualityOptions}
             selectedValues={selectedQualities}
             onChange={onSelectQualities}
-            placeholder="Selecciona cualidad"
+            placeholder={sp.selectQuality}
+            allLabel={sp.allLabel}
           />
         </div>
       </div>
@@ -240,7 +282,7 @@ export default function SessionParameters({
         ].join(" ")}
         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
       >
-        Comenzar
+        {sp.start}
       </button>
     </div>
   );

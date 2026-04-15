@@ -1,3 +1,6 @@
+"use client";
+
+import { useLanguage } from "@/i18n/LanguageContext";
 import type { TrainingMode, TrainingModeOption } from "../../domain/main-menu.types";
 
 const ACCENT_MAP: Record<
@@ -35,6 +38,13 @@ const ACCENT_MAP: Record<
   },
 };
 
+// Map mode → translation key
+const MODE_KEY_MAP: Record<TrainingMode, "intervals" | "closedTriads" | "scales"> = {
+  "intervals":     "intervals",
+  "closed-triads": "closedTriads",
+  "scales":        "scales",
+};
+
 interface TrainingModeCardProps {
   option: TrainingModeOption;
   isSelected: boolean;
@@ -47,6 +57,9 @@ export default function TrainingModeCard({
   onClick,
 }: TrainingModeCardProps) {
   const accent = ACCENT_MAP[option.accentColor];
+  const { t } = useLanguage();
+  const modeKey = MODE_KEY_MAP[option.mode];
+  const modeT = t.mainMenu.modes[modeKey];
 
   return (
     <div
@@ -73,9 +86,9 @@ export default function TrainingModeCard({
           className="text-2xl font-bold text-[#e5e2e1] leading-tight"
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          {option.title}
+          {modeT.title}
         </h4>
-        <p className="text-[#bfc7d4] text-sm mt-2 leading-relaxed">{option.description}</p>
+        <p className="text-[#bfc7d4] text-sm mt-2 leading-relaxed">{modeT.description}</p>
       </div>
 
       {/* Ghost icon (decorative background) */}
@@ -92,7 +105,7 @@ export default function TrainingModeCard({
       <div
         className={`mt-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest ${accent.ctaColor}`}
       >
-        Select Mode
+        {modeT.selectMode}
         <span className="material-symbols-outlined text-sm">arrow_forward</span>
       </div>
     </div>

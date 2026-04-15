@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import FretboardGrid from "../ui/FretboardGrid";
 import FeedbackBanner from "../ui/FeedbackBanner";
@@ -12,6 +13,9 @@ import type { FretboardNotes, StringName } from "../../domain/trainer.types";
 
 export default function TrainerContainer() {
   const router = useRouter();
+  const { t } = useLanguage();
+  const tr = t.trainer;
+
   const {
     phase,
     question,
@@ -89,10 +93,16 @@ export default function TrainerContainer() {
   // ── Question header content (differs by kind) ────────────────────────────
   const questionKind = question.kind; // "interval" | "scale" | "triad"
 
+  // Resolve interval label from translations (locale-aware), fallback to stored label
+  const resolvedIntervalLabel =
+    questionKind === "interval"
+      ? (tr.intervalLabels as Record<string, string>)[question.intervalSymbol] ?? question.intervalLabel
+      : "";
+
   const questionHeadline =
     questionKind === "scale" ? (
       <>
-        Escala Mayor —{" "}
+        {tr.headlines.scale}{" "}
         <span className="text-[#9ecaff]">{question.position}</span>
         <span className="text-[#bfc7d4] text-sm font-normal ml-2">
           ({question.scopeLabel})
@@ -100,7 +110,7 @@ export default function TrainerContainer() {
       </>
     ) : questionKind === "triad" ? (
       <>
-        Tríada{" "}
+        {tr.headlines.triad}{" "}
         <span className="text-[#9ecaff]">{question.qualityLabel}</span>
         <span className="text-[#bfc7d4] text-sm font-normal ml-2">
           — {question.inversionLabel}
@@ -108,10 +118,10 @@ export default function TrainerContainer() {
       </>
     ) : (
       <>
-        Selecciona un intervalo de{" "}
+        {tr.headlines.interval}{" "}
         <span className="text-[#9ecaff]">{question.intervalSymbol}</span>
         <span className="text-[#bfc7d4] text-sm font-normal ml-2">
-          ({question.intervalLabel})
+          ({resolvedIntervalLabel})
         </span>
       </>
     );
@@ -123,19 +133,20 @@ export default function TrainerContainer() {
 
     if (questionKind === "scale") {
       return feedbackState === "correct"
-        ? `¡Correcto! Completaste la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`
-        : `Incorrecto. Las posiciones en verde son la escala Mayor de ${question.tonicNote} — ${question.positionLabel} — ${question.scopeLabel}.`;
+        ? tr.feedback.correctScale(question.tonicNote, question.positionLabel, question.scopeLabel)
+        : tr.feedback.incorrectScale(question.tonicNote, question.positionLabel, question.scopeLabel);
     }
 
     if (questionKind === "triad") {
       return feedbackState === "correct"
-        ? `¡Correcto! Localizaste la tríada ${question.qualityLabel} de ${question.tonicNote}.`
-        : `Incorrecto. Las posiciones en verde son la tríada ${question.qualityLabel} de ${question.tonicNote}.`;
+        ? tr.feedback.correctTriad(question.qualityLabel, question.tonicNote)
+        : tr.feedback.incorrectTriad(question.qualityLabel, question.tonicNote);
     }
 
+    // interval — use the locale-resolved label in feedback too
     return feedbackState === "correct"
-      ? `¡Correcto! Localizaste todas las posiciones del intervalo ${question.intervalSymbol} (${question.intervalLabel}) de ${question.tonicNote}.`
-      : `Incorrecto. Las posiciones en verde son las respuestas correctas del intervalo ${question.intervalSymbol} de ${question.tonicNote}.`;
+      ? tr.feedback.correctInterval(question.intervalSymbol, resolvedIntervalLabel, question.tonicNote)
+      : tr.feedback.incorrectInterval(question.intervalSymbol, question.tonicNote);
   };
 
   const feedbackMessage = getFeedbackMessage();
@@ -154,7 +165,7 @@ export default function TrainerContainer() {
       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
     >
       <span className="material-symbols-outlined">check_circle</span>
-      Verificar
+      {tr.buttons.verify}
     </button>
   );
 
@@ -170,7 +181,7 @@ export default function TrainerContainer() {
       ].join(" ")}
       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
     >
-      Siguiente pregunta
+      {tr.buttons.next}
       <span className="material-symbols-outlined">arrow_forward</span>
     </button>
   );
@@ -188,14 +199,13 @@ export default function TrainerContainer() {
       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
     >
       <span className="material-symbols-outlined text-base">flag</span>
-      Terminar sesión
+      {tr.buttons.finish}
     </button>
   );
 
   return (
     <>
       <TopAppBar />
-
 
       <main className="pt-24 pb-48 lg:pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* ── Left Column ── */}
@@ -207,35 +217,27 @@ export default function TrainerContainer() {
                   className="text-[#9ecaff] tracking-widest uppercase text-xs mb-1"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {questionKind === "scale"
-                    ? "Scale Training"
-                    : questionKind === "triad"
-                      ? "Triad Training"
-                      : "Visual Fretboard Training"}
+                  {tr.kinds[questionKind]}
                 </p>
                 <h1
                   className="text-2xl font-bold leading-tight tracking-tight text-[#e5e2e1]"
                   style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {questionKind === "scale"
-                    ? "Escalas Mayores"
-                    : questionKind === "triad"
-                      ? "Tríadas Cerradas"
-                      : "Identificación de Intervalos"}
+                  {tr.titles[questionKind]}
                 </h1>
               </div>
 
               {/* Current question progress */}
               <div className="p-4 bg-[#20201f] rounded-lg border border-[#404752]/10 flex items-center justify-between">
                 <p className="text-[#bfc7d4] text-sm">
-                  Pregunta {questionProgress}
+                  {tr.question.label} {questionProgress}
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[#4edea3] text-sm">
                     check_circle
                   </span>
                   <span className="text-sm text-[#4edea3] font-bold">
-                    {correctCount} correctas
+                    {correctCount} {tr.question.correct}
                   </span>
                 </div>
               </div>
@@ -243,12 +245,8 @@ export default function TrainerContainer() {
               {/* Instructions */}
               <div className="p-4 bg-[#20201f] rounded-lg border border-[#404752]/10">
                 <p className="text-[#bfc7d4] text-sm leading-relaxed">
-                  {questionKind === "scale"
-                    ? "Completa la escala en el mástil partiendo de la tónica indicada. Selecciona todas las posiciones correctas y presiona "
-                    : questionKind === "triad"
-                      ? "Selecciona las 2 notas restantes de la tríada (tercera y quinta) tomando como referencia la tónica indicada. Presiona "
-                      : "Localiza el intervalo solicitado en el mástil tomando como referencia la tónica indicada. Selecciona todas las posiciones correctas y presiona "}
-                  <strong className="text-[#e5e2e1]">Verificar</strong>.
+                  {tr.instructions[questionKind]}
+                  <strong className="text-[#e5e2e1]">{tr.buttons.verify}</strong>.
                 </p>
               </div>
 
@@ -280,13 +278,13 @@ export default function TrainerContainer() {
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-[#2196f3]" />
                     <span className="text-xs font-bold text-[#bfc7d4] uppercase">
-                      Tónica: {question.tonicNote}
+                      {tr.labels.tonic}: {question.tonicNote}
                     </span>
                   </div>
                   <div className="w-px h-3 bg-[#404752]/30" />
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-[#4edea3]" />
-                    <span className="text-xs text-[#bfc7d4] uppercase">Seleccionada</span>
+                    <span className="text-xs text-[#bfc7d4] uppercase">{tr.labels.selected}</span>
                   </div>
                 </div>
               </div>
@@ -327,7 +325,7 @@ export default function TrainerContainer() {
               <div className="flex items-center gap-2 text-[#bfc7d4]">
                 <span className="material-symbols-outlined text-sm">settings_input_component</span>
                 <span className="text-xs uppercase tracking-tighter">
-                  Afinación: Standard (EADGBE)
+                  {tr.labels.tuning}
                 </span>
               </div>
             </div>
@@ -358,7 +356,7 @@ export default function TrainerContainer() {
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           <span className="material-symbols-outlined text-base">check_circle</span>
-          Verificar
+          {tr.buttons.verify}
         </button>
         <button
           onClick={nextQuestion}
@@ -371,7 +369,7 @@ export default function TrainerContainer() {
           ].join(" ")}
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          Siguiente
+          {tr.buttons.nextShort}
           <span className="material-symbols-outlined text-base">arrow_forward</span>
         </button>
         <button
@@ -386,7 +384,7 @@ export default function TrainerContainer() {
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           <span className="material-symbols-outlined text-base">flag</span>
-          Terminar
+          {tr.buttons.finishShort}
         </button>
       </div>
     </>

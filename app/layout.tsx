@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
+import { LanguageProvider } from "@/i18n/LanguageContext";
+import { resolveLocale, LANG_COOKIE_NAME } from "@/i18n";
 
 export const metadata: Metadata = {
   title: "Guitar Atelier — Master Fretboard",
@@ -7,13 +10,16 @@ export const metadata: Metadata = {
     "Precision fretboard training. Practice intervals, triads, inversions and scales in the digital atelier.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get(LANG_COOKIE_NAME)?.value);
+
   return (
-    <html lang="es" className="dark h-full">
+    <html lang={locale} className="dark h-full">
       <head>
         {/* Google Fonts — loaded via <link> to avoid CSS @import ordering issues */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +34,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col antialiased">
-        {children}
+        <LanguageProvider initialLocale={locale}>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

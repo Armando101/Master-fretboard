@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import TrainingModeCard from "../ui/TrainingModeCard";
 import SessionParameters from "../ui/SessionParameters";
@@ -19,6 +20,7 @@ import {
 export default function MainMenuContainer() {
   const router = useRouter();
   const startSession = useSessionStore((s) => s.startSession);
+  const { t } = useLanguage();
 
   const [selectedMode,       setSelectedMode]       = useState<TrainingMode>("intervals");
   const [selectedCount,      setSelectedCount]       = useState<QuestionCount>(10);
@@ -48,7 +50,6 @@ export default function MainMenuContainer() {
     <>
       <TopAppBar />
 
-
       {/* Decorative fretboard string accents */}
       <div className="fixed bottom-24 left-0 w-full h-[1px] bg-[#393939]/20 z-0 pointer-events-none" />
       <div className="fixed bottom-32 left-0 w-full h-px bg-[#393939]/10 z-0 pointer-events-none" />
@@ -62,18 +63,17 @@ export default function MainMenuContainer() {
             className="text-[#9ecaff] font-medium tracking-widest text-sm uppercase"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            Training Module
+            {t.mainMenu.trainingModule}
           </span>
           <h2
             className="text-5xl font-bold leading-tight tracking-tighter text-[#e5e2e1]"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            Master the <br />
-            <span className="text-[#ffe2ab]">Fretboard</span>
+            {t.mainMenu.headline} <br />
+            <span className="text-[#ffe2ab]">{t.mainMenu.headlineAccent}</span>
           </h2>
           <p className="text-[#bfc7d4] max-w-md font-light leading-relaxed">
-            Select your focus area and calibrate your session. Technical
-            precision through disciplined repetition in the digital atelier.
+            {t.mainMenu.subtitle}
           </p>
         </div>
 
@@ -85,18 +85,17 @@ export default function MainMenuContainer() {
               className="text-[#9ecaff] font-medium tracking-widest text-sm uppercase"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Training Module
+              {t.mainMenu.trainingModule}
             </span>
             <h2
               className="text-5xl font-bold leading-tight tracking-tighter text-[#e5e2e1]"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              Master the <br />
-              <span className="text-[#ffe2ab]">Fretboard</span>
+              {t.mainMenu.headline} <br />
+              <span className="text-[#ffe2ab]">{t.mainMenu.headlineAccent}</span>
             </h2>
             <p className="text-[#bfc7d4] max-w-md font-light leading-relaxed">
-              Select your focus area and calibrate your session. Technical
-              precision through disciplined repetition in the digital atelier.
+              {t.mainMenu.subtitle}
             </p>
           </div>
 

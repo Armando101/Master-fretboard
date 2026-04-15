@@ -1,3 +1,6 @@
+"use client";
+
+import { useLanguage } from "@/i18n/LanguageContext";
 import type { IntervalResult } from "../../domain/session-summary.types";
 import { getResultTone } from "../../domain/session-summary.types";
 
@@ -8,38 +11,45 @@ interface IntervalResultRowProps {
 const TONE_STYLES = {
   success: {
     rowBorder: "",
-    iconBg: "bg-[#4edea3]/10",
-    icon: "check_circle",
+    iconBg:    "bg-[#4edea3]/10",
+    icon:      "check_circle",
     iconStyle: { fontVariationSettings: "'FILL' 1" },
     iconColor: "text-[#4edea3]",
     scoreColor: "text-[#4edea3]",
-    barColor: "bg-[#4edea3]",
+    barColor:  "bg-[#4edea3]",
   },
   failure: {
     rowBorder: "border-l-2 border-[#ffb4ab]/30",
-    iconBg: "bg-[#ffb4ab]/10",
-    icon: "cancel",
+    iconBg:    "bg-[#ffb4ab]/10",
+    icon:      "cancel",
     iconStyle: { fontVariationSettings: "'FILL' 1" },
     iconColor: "text-[#ffb4ab]",
     scoreColor: "text-[#ffb4ab]",
-    barColor: "bg-[#ffb4ab]",
+    barColor:  "bg-[#ffb4ab]",
   },
   partial: {
     rowBorder: "",
-    iconBg: "bg-[#9ecaff]/10",
-    icon: "info",
+    iconBg:    "bg-[#9ecaff]/10",
+    icon:      "info",
     iconStyle: { fontVariationSettings: "'FILL' 1" },
     iconColor: "text-[#9ecaff]",
     scoreColor: "text-[#bfc7d4]",
-    barColor: "bg-[#9ecaff]",
+    barColor:  "bg-[#9ecaff]",
   },
 };
 
 export default function IntervalResultRow({ result }: IntervalResultRowProps) {
-  const { symbol, label, correct, total } = result;
-  const tone = getResultTone(correct, total);
+  const { t } = useLanguage();
+  const { symbol, correct, total } = result;
+  const tone   = getResultTone(correct, total);
   const styles = TONE_STYLES[tone];
-  const pct = total === 0 ? 0 : Math.round((correct / total) * 100);
+  const pct    = total === 0 ? 0 : Math.round((correct / total) * 100);
+
+  // Resolve the label from translations (works for intervals and scale positions).
+  // intervalLabels only covers interval symbols — for scale positions the symbol
+  // is used as the label directly (it's already locale-neutral: "Derecha", "Centro"…).
+  const intervalLabels = t.trainer.intervalLabels as Record<string, string>;
+  const translatedLabel = intervalLabels[symbol] ?? result.label;
 
   return (
     <div
@@ -68,9 +78,11 @@ export default function IntervalResultRow({ result }: IntervalResultRowProps) {
           >
             {symbol}
           </p>
-          <p className="text-xs text-[#89919d] uppercase tracking-wider"
-             style={{ fontFamily: "'Manrope', sans-serif" }}>
-            {label}
+          <p
+            className="text-xs text-[#89919d] uppercase tracking-wider"
+            style={{ fontFamily: "'Manrope', sans-serif" }}
+          >
+            {translatedLabel}
           </p>
         </div>
       </div>

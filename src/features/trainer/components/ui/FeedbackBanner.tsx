@@ -1,3 +1,6 @@
+"use client";
+
+import { useLanguage } from "@/i18n/LanguageContext";
 import type { FeedbackState } from "../../domain/trainer.types";
 
 interface FeedbackBannerProps {
@@ -5,7 +8,7 @@ interface FeedbackBannerProps {
   message?: string;
 }
 
-const CONFIG: Record<
+const STYLE_CONFIG: Record<
   Exclude<FeedbackState, "idle">,
   {
     bg: string;
@@ -14,7 +17,6 @@ const CONFIG: Record<
     icon: string;
     iconColor: string;
     titleColor: string;
-    title: string;
     messageColor: string;
   }
 > = {
@@ -25,7 +27,6 @@ const CONFIG: Record<
     icon:         "task_alt",
     iconColor:    "text-[#4edea3]",
     titleColor:   "text-[#4edea3]",
-    title:        "¡Correcto!",
     messageColor: "text-[#4edea3]/80",
   },
   incorrect: {
@@ -35,15 +36,17 @@ const CONFIG: Record<
     icon:         "cancel",
     iconColor:    "text-[#ffb4ab]",
     titleColor:   "text-[#ffb4ab]",
-    title:        "¡Incorrecto!",
     messageColor: "text-[#ffb4ab]/80",
   },
 };
 
 export default function FeedbackBanner({ state, message }: FeedbackBannerProps) {
+  const { t } = useLanguage();
+
   if (state === "idle") return null;
 
-  const cfg = CONFIG[state];
+  const cfg = STYLE_CONFIG[state];
+  const title = state === "correct" ? t.trainer.banner.correct : t.trainer.banner.incorrect;
 
   return (
     <div className={`flex items-center gap-4 p-4 ${cfg.bg} ${cfg.border} rounded-lg`}>
@@ -57,7 +60,7 @@ export default function FeedbackBanner({ state, message }: FeedbackBannerProps) 
           className={`font-bold ${cfg.titleColor}`}
           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
-          {cfg.title}
+          {title}
         </p>
         {message && (
           <p className={`text-xs mt-0.5 ${cfg.messageColor}`}>{message}</p>
