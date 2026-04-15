@@ -111,12 +111,14 @@ export interface QuestionData {
 }
 
 /** Generate a random question, ensuring there is at least one correct position */
-export function generateQuestion(): QuestionData {
+export function generateQuestion(allowedSymbols?: string[]): QuestionData {
+  const pool =
+    allowedSymbols && allowedSymbols.length > 0 ? allowedSymbols : INTERVAL_POOL;
   const maxAttempts = 100;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     // Random interval
-    const intervalSymbol = INTERVAL_POOL[Math.floor(Math.random() * INTERVAL_POOL.length)];
+    const intervalSymbol = pool[Math.floor(Math.random() * pool.length)];
     const config = INTERVAL_CONFIG[intervalSymbol];
 
     // Random valid tónica string

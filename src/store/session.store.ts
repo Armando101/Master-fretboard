@@ -24,6 +24,8 @@ export interface SessionConfig {
   totalQuestions: number; // Infinity for unlimited
   triadInversions?: MusicTriadInversion[];
   triadQualities?: MusicTriadQuality[];
+  /** Interval symbols to include — undefined/empty means all intervals */
+  intervalSymbols?: string[];
 }
 
 export interface QuestionResult {
@@ -65,7 +67,7 @@ function posKey(p: Position) {
 function makeNextQuestion(config: SessionConfig): AnyQuestion {
   if (config.sessionType === "scale") return generateScaleQuestion();
   if (config.sessionType === "triad") return generateTriadQuestion(config.triadQualities, config.triadInversions);
-  return generateQuestion();
+  return generateQuestion(config.intervalSymbols);
 }
 
 function makeResult(question: AnyQuestion, wasCorrect: boolean): QuestionResult {
