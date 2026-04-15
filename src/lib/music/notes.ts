@@ -189,12 +189,24 @@ export function resolveIntervalNoteName(
   const diatonicNote = scale[degIdx];          // e.g. "E", "G#", "Bb"
   const letter       = diatonicNote[0];         // "E", "G", "B"
   const diatonicPc   = NOTE_TO_PC[diatonicNote];
-  const diff         = ((pc - diatonicPc) % 12 + 12) % 12;
+  
+  let shift = ((pc - diatonicPc) % 12 + 12) % 12;
+  if (shift > 6) shift -= 12; // Normalize to -6..+5 range
 
-  if (diff === 11) return `${letter}b`;    // one semitone below → flat
-  if (diff ===  1) return `${letter}#`;   // one semitone above → sharp
-  if (diff === 10) return `${letter}bb`;  // double flat  (rare)
-  if (diff ===  2) return `${letter}x`;   // double sharp (rare)
+  const accidental = diatonicNote.substring(1);
+  let accValue = 0;
+  if (accidental === "#") accValue = 1;
+  else if (accidental === "b") accValue = -1;
 
-  return midiToName(midi) as string; // unexpected, fallback
+  const totalAcc = accValue + shift;
+
+  let newAccStr = "";
+  if (totalAcc === -2) newAccStr = "bb";
+  else if (totalAcc === -1) newAccStr = "b";
+  else if (totalAcc === 0) newAccStr = "";
+  else if (totalAcc === 1) newAccStr = "#";
+  else if (totalAcc === 2) newAccStr = "x";
+  else return midiToName(midi) as string; // unexpected, fallback
+
+  return `${letter}${newAccStr}`;
 }
