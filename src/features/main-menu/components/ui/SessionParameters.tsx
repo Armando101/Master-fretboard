@@ -25,6 +25,8 @@ interface SessionParametersProps {
   onSelectQualities:   (q: TriadQuality[]) => void;
   selectedIntervals:   IntervalSymbol[];
   onSelectIntervals:   (s: IntervalSymbol[]) => void;
+  useMic:              boolean;
+  onToggleMic:         (val: boolean) => void;
   onStart:             () => void;
 }
 
@@ -209,6 +211,8 @@ export default function SessionParameters({
   onSelectQualities,
   selectedIntervals,
   onSelectIntervals,
+  useMic,
+  onToggleMic,
   onStart,
 }: SessionParametersProps) {
   const { t } = useLanguage();
@@ -320,6 +324,55 @@ export default function SessionParameters({
             allLabel={sp.allLabel}
           />
         </div>
+      </div>
+
+      {/* ── Microphone Toggle ── */}
+      <div className="space-y-3">
+        <label className="block text-xs uppercase tracking-widest text-[#89919d]">
+          Entrada
+        </label>
+        <button
+          type="button"
+          onClick={() => onToggleMic(!useMic)}
+          className={[
+            "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-md border transition-all",
+            useMic
+              ? "bg-[#ffb74d]/10 border-[#ffb74d]/40 text-[#ffb74d]"
+              : "bg-[#0e0e0e] border-[#353535] text-[#bfc7d4] hover:border-[#9ecaff]/30",
+          ].join(" ")}
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-lg">
+              {useMic ? "mic" : "mic_off"}
+            </span>
+            <span className="text-sm font-medium">
+              {useMic ? "Micrófono activado" : "Solo pantalla"}
+            </span>
+          </div>
+          {/* Toggle pill */}
+          <div
+            className={[
+              "relative w-10 h-5 rounded-full transition-colors flex-shrink-0",
+              useMic ? "bg-[#ffb74d]" : "bg-[#353535]",
+            ].join(" ")}
+          >
+            <div
+              className={[
+                "absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform",
+                useMic ? "translate-x-5" : "translate-x-0.5",
+              ].join(" ")}
+            />
+          </div>
+        </button>
+
+        {/* Tuning tip — shown only when mic is active */}
+        {useMic && (
+          <p className="text-xs text-[#89919d] leading-relaxed flex items-start gap-1.5">
+            <span className="material-symbols-outlined text-[#ffb74d] text-sm mt-0.5">info</span>
+            Para una mejor experiencia, afina tu guitarra antes de comenzar.
+          </p>
+        )}
       </div>
 
       {/* CTA */}

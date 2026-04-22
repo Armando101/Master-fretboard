@@ -31,6 +31,7 @@ export default function MainMenuContainer() {
   const [selectedQualities,  setSelectedQualities]   = useState<TriadQuality[]>([
     "major", "minor", "sus2", "sus4", "diminished", "augmented"
   ]);
+  const [useMic, setUseMic] = useState(false);
 
   // Default: all intervals selected (every enabled, non-"all" option)
   const allIntervalValues = INTERVAL_OPTIONS
@@ -58,6 +59,7 @@ export default function MainMenuContainer() {
       triadInversions: inversionsToPass,
       triadQualities: qualitiesToPass,
       intervalSymbols: intervalSymbolsToPass,
+      useMic,
     });
     router.push("/trainer");
   };
@@ -125,6 +127,8 @@ export default function MainMenuContainer() {
             onSelectQualities={setSelectedQualities}
             selectedIntervals={selectedIntervals}
             onSelectIntervals={setSelectedIntervals}
+            useMic={useMic}
+            onToggleMic={setUseMic}
             onStart={handleStart}
           />
         </section>

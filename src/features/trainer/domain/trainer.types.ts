@@ -8,7 +8,8 @@ export type NoteState =
   | "tonic"      // blue — the root note
   | "selected"   // steel blue — user clicked
   | "correct"    // green — verified correct
-  | "incorrect"; // red — verified incorrect
+  | "incorrect"  // red — verified incorrect
+  | "mic-flash"; // amber — mic detected this note (flashes for 500 ms)
 
 // Key format: `${StringName}-${fret}` e.g. "A-5"
 export type FretboardNotes = Record<string, NoteState>;

@@ -26,6 +26,8 @@ export interface SessionConfig {
   triadQualities?: MusicTriadQuality[];
   /** Interval symbols to include — undefined/empty means all intervals */
   intervalSymbols?: string[];
+  /** Whether this session uses microphone input for note detection */
+  useMic?: boolean;
 }
 
 export interface QuestionResult {
@@ -52,6 +54,10 @@ export interface SessionStore {
   startSession: (config: Omit<SessionConfig, "sessionType">) => void;
   selectPosition: (pos: Position) => void;
   deselectPosition: (pos: Position) => void;
+  /** Removes the last mic-detected selected position (Undo). Tonic is never removed. */
+  undoLastMicNote: () => void;
+  /** Removes all selected positions except the tonic (Clear All). */
+  clearMicNotes: () => void;
   verify: () => void;
   nextQuestion: () => void;
   finishEarly: () => void;
@@ -143,6 +149,35 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (feedbackState !== "idle") return;
     const key = posKey(pos);
     set({ selectedPositions: selectedPositions.filter((p) => posKey(p) !== key) });
+  },
+
+  // ── undoLastMicNote ───────────────────────────────────────────────────────
+  undoLastMicNote() {
+    const { feedbackState, selectedPositions, question } = get();
+    if (feedbackState !== "idle" || !question) return;
+    const tonicKey = `${question.tonicString}-${question.tonicFret}`;
+    // Remove the last selected position that is not the tonic
+    const nonTonic = selectedPositions.filter((p) => posKey(p) !== tonicKey);
+    if (nonTonic.length === 0) return;
+    const lastPos = nonTonic[nonTonic.length - 1];
+    set({
+      selectedPositions: selectedPositions.filter((p) => posKey(p) !== posKey(lastPos)),
+    });
+  },
+
+  // ── clearMicNotes ─────────────────────────────────────────────────────────
+  clearMicNotes() {
+    const { feedbackState, question } = get();
+    if (feedbackState !== "idle" || !question) return;
+    const tonicKey = `${question.tonicString}-${question.tonicFret}`;
+    // Keep only the tonic position
+    set({
+      selectedPositions: [{ string: question.tonicString, fret: question.tonicFret }].filter(
+        () => true // always keep tonic, but only if it was selected
+      ),
+    });
+    // Actually: reset to empty (tonic shown separately as a fixed note)
+    set({ selectedPositions: [] });
   },
 
   // ── verify ────────────────────────────────────────────────────────────────

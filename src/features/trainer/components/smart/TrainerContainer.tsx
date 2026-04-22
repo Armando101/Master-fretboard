@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -9,6 +9,9 @@ import FretboardGrid from "../ui/FretboardGrid";
 import FeedbackBanner from "../ui/FeedbackBanner";
 import SessionSnapshot from "../ui/SessionSnapshot";
 import { useSessionStore } from "@/store/session.store";
+import { usePitchStore } from "@/store/pitch.store";
+import { usePitchDetector } from "@/hooks/usePitchDetector";
+import type { MicFlash } from "@/hooks/usePitchDetector";
 import { resolveIntervalNoteName, fretToMidi } from "@/lib/music/notes";
 import type { FretboardNotes, StringName } from "../../domain/trainer.types";
 
@@ -43,10 +46,43 @@ export default function TrainerContainer() {
     results,
     selectPosition,
     deselectPosition,
+    undoLastMicNote,
+    clearMicNotes,
     verify,
     nextQuestion,
     finishEarly,
   } = useSessionStore();
+
+  const { isMicEnabled, isMicListening, enableMic, disableMic, startListening, stopListening } =
+    usePitchStore();
+
+  // ── Mic flash state: amber highlight for 500ms on detected note ───────────
+  const [micFlashes, setMicFlashes] = useState<Record<string, number>>({});
+
+  const handleFlash = useCallback((flash: MicFlash) => {
+    setMicFlashes((prev) => ({ ...prev, [flash.key]: flash.expiresAt }));
+    setTimeout(() => {
+      setMicFlashes((prev) => {
+        const next = { ...prev };
+        delete next[flash.key];
+        return next;
+      });
+    }, flash.expiresAt - Date.now());
+  }, []);
+
+  // Mount the pitch detection loop (no-op when isMicEnabled is false)
+  usePitchDetector(handleFlash);
+
+  // Enable / disable mic store based on session config
+  useEffect(() => {
+    if (config?.useMic) {
+      enableMic();
+    } else {
+      disableMic();
+    }
+    return () => disableMic();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config?.useMic]);
 
   // Guard: if no active session, redirect to menu
   useEffect(() => {
@@ -70,6 +106,12 @@ export default function TrainerContainer() {
         const key = `${pos.string}-${pos.fret}`;
         if (key !== `${question.tonicString}-${question.tonicFret}`) {
           notes[key] = "selected";
+        }
+      }
+      // Overlay mic-flash highlights (amber, 500ms)
+      for (const [flashKey] of Object.entries(micFlashes)) {
+        if (flashKey !== `${question.tonicString}-${question.tonicFret}`) {
+          notes[flashKey] = "mic-flash";
         }
       }
     } else {
@@ -295,6 +337,64 @@ export default function TrainerContainer() {
                 {nextBtn}
                 {finishBtn}
               </div>
+
+              {/* ── Mic control toolbar — only when mic is enabled ── */}
+              {isMicEnabled && feedbackState === "idle" && (
+                <div className="flex flex-col gap-2 border-t border-[#404752]/10 pt-4">
+                  <p className="text-[10px] uppercase tracking-widest text-[#89919d] mb-1">
+                    Control de Micrófono
+                  </p>
+                  <div className="flex gap-2">
+                    {/* Mute / Unmute */}
+                    <button
+                      onClick={() => isMicListening ? stopListening() : startListening()}
+                      className={[
+                        "flex-1 py-2.5 px-3 rounded-md flex items-center justify-center gap-2 text-sm font-medium border transition-all",
+                        isMicListening
+                          ? "border-[#ffb74d]/40 bg-[#ffb74d]/10 text-[#ffb74d]"
+                          : "border-[#404752]/20 bg-[#1c1b1b] text-[#89919d] hover:border-[#404752]/40",
+                      ].join(" ")}
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      title={isMicListening ? "Silenciar micrófono" : "Activar micrófono"}
+                    >
+                      <span className="material-symbols-outlined text-base">
+                        {isMicListening ? "mic" : "mic_off"}
+                      </span>
+                      {isMicListening ? "Escuchando" : "Silenciado"}
+                    </button>
+
+                    {/* Undo last */}
+                    <button
+                      onClick={undoLastMicNote}
+                      disabled={selectedPositions.length === 0}
+                      className={[
+                        "py-2.5 px-3 rounded-md flex items-center justify-center border transition-all",
+                        selectedPositions.length > 0
+                          ? "border-[#404752]/30 text-[#bfc7d4] hover:bg-[#353535]"
+                          : "border-[#404752]/10 text-[#3a3a3a] cursor-not-allowed",
+                      ].join(" ")}
+                      title="Deshacer última nota"
+                    >
+                      <span className="material-symbols-outlined text-base">undo</span>
+                    </button>
+
+                    {/* Clear all */}
+                    <button
+                      onClick={clearMicNotes}
+                      disabled={selectedPositions.length === 0}
+                      className={[
+                        "py-2.5 px-3 rounded-md flex items-center justify-center border transition-all",
+                        selectedPositions.length > 0
+                          ? "border-[#ff6b6b]/20 text-[#ff6b6b]/70 hover:bg-[#ff6b6b]/10"
+                          : "border-[#404752]/10 text-[#3a3a3a] cursor-not-allowed",
+                      ].join(" ")}
+                      title="Borrar todas las notas"
+                    >
+                      <span className="material-symbols-outlined text-base">delete_sweep</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 
@@ -428,6 +528,67 @@ export default function TrainerContainer() {
           {tr.buttons.finishShort}
         </button>
       </div>
+
+      {/* ── Mobile mic toolbar ─────────────────────────────────────────── */}
+      {isMicEnabled && feedbackState === "idle" && (
+        <div
+          className="lg:hidden fixed left-0 right-0 z-39 flex gap-2 px-4 py-2"
+          style={{
+            bottom: 148,
+            backgroundColor: "rgba(19, 19, 19, 0.92)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderTop: "1px solid rgba(255, 183, 77, 0.15)",
+          }}
+        >
+          {/* Mute / Unmute */}
+          <button
+            onClick={() => isMicListening ? stopListening() : startListening()}
+            className={[
+              "flex-1 py-2 px-3 rounded-md flex items-center justify-center gap-1.5 text-xs font-medium border transition-all",
+              isMicListening
+                ? "border-[#ffb74d]/40 bg-[#ffb74d]/10 text-[#ffb74d]"
+                : "border-[#404752]/20 bg-transparent text-[#89919d]",
+            ].join(" ")}
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            <span className="material-symbols-outlined text-sm">
+              {isMicListening ? "mic" : "mic_off"}
+            </span>
+            {isMicListening ? "Mic" : "Mute"}
+          </button>
+
+          {/* Undo */}
+          <button
+            onClick={undoLastMicNote}
+            disabled={selectedPositions.length === 0}
+            className={[
+              "py-2 px-3 rounded-md flex items-center justify-center gap-1.5 text-xs border transition-all",
+              selectedPositions.length > 0
+                ? "border-[#404752]/30 text-[#bfc7d4]"
+                : "border-[#404752]/10 text-[#3a3a3a] cursor-not-allowed",
+            ].join(" ")}
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            <span className="material-symbols-outlined text-sm">undo</span>
+          </button>
+
+          {/* Clear */}
+          <button
+            onClick={clearMicNotes}
+            disabled={selectedPositions.length === 0}
+            className={[
+              "py-2 px-3 rounded-md flex items-center justify-center gap-1.5 text-xs border transition-all",
+              selectedPositions.length > 0
+                ? "border-[#ff6b6b]/20 text-[#ff6b6b]/70"
+                : "border-[#404752]/10 text-[#3a3a3a] cursor-not-allowed",
+            ].join(" ")}
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            <span className="material-symbols-outlined text-sm">delete_sweep</span>
+          </button>
+        </div>
+      )}
     </>
   );
 }

@@ -33,22 +33,25 @@ const DOUBLE_DOTS = [12];
 
 // ── Note state styles ─────────────────────────────────────────────────────────
 const STATE_BG: Record<Exclude<NoteState, "default">, string> = {
-  tonic:     "#2196f3",
-  selected:  "#9ecaff",
-  correct:   "#4edea3",
-  incorrect: "#ffb4ab",
+  tonic:        "#2196f3",
+  selected:     "#9ecaff",
+  correct:      "#4edea3",
+  incorrect:    "#ffb4ab",
+  "mic-flash":  "#ffb74d", // amber
 };
 const STATE_TEXT: Record<Exclude<NoteState, "default">, string> = {
-  tonic:     "#003258",
-  selected:  "#003258",
-  correct:   "#003824",
-  incorrect: "#690005",
+  tonic:        "#003258",
+  selected:     "#003258",
+  correct:      "#003824",
+  incorrect:    "#690005",
+  "mic-flash":  "#3e2000", // dark brown on amber
 };
 const STATE_SHADOW: Record<Exclude<NoteState, "default">, string> = {
-  tonic:     "0 0 14px rgba(33,150,243,0.55)",
-  selected:  "0 0 10px rgba(158,202,255,0.45)",
-  correct:   "0 0 14px rgba(78,222,163,0.55)",
-  incorrect: "0 0 14px rgba(255,180,171,0.55)",
+  tonic:        "0 0 14px rgba(33,150,243,0.55)",
+  selected:     "0 0 10px rgba(158,202,255,0.45)",
+  correct:      "0 0 14px rgba(78,222,163,0.55)",
+  incorrect:    "0 0 14px rgba(255,180,171,0.55)",
+  "mic-flash":  "0 0 14px rgba(255,183,77,0.70)",
 };
 
 interface FretboardGridProps {
