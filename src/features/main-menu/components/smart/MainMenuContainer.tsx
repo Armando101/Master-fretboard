@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -22,22 +22,85 @@ import {
 
 export default function MainMenuContainer() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const startSession = useSessionStore((s) => s.startSession);
   const { t } = useLanguage();
-
-  const [selectedMode,       setSelectedMode]       = useState<TrainingMode>("intervals");
-  const [selectedCount,      setSelectedCount]       = useState<QuestionCount>(10);
-  const [selectedInversions, setSelectedInversions]  = useState<TriadInversion[]>(["fundamental"]);
-  const [selectedQualities,  setSelectedQualities]   = useState<TriadQuality[]>([
-    "major", "minor", "sus2", "sus4", "diminished", "augmented"
-  ]);
 
   // Default: all intervals selected (every enabled, non-"all" option)
   const allIntervalValues = INTERVAL_OPTIONS
     .filter(o => o.value !== "all" && o.enabled)
     .map(o => o.value as Exclude<IntervalSymbol, "all">);
 
-  const [selectedIntervals, setSelectedIntervals] = useState<IntervalSymbol[]>(allIntervalValues);
+  // Initialize state from URL search params or fallback to defaults
+  const initialMode = (searchParams.get("mode") as TrainingMode) || "intervals";
+  const countParam = searchParams.get("count");
+  const initialCount = countParam === "null" ? null : (countParam ? Number(countParam) as QuestionCount : 10);
+  
+  const initialInversions = searchParams.get("inversions")
+    ? (searchParams.get("inversions")!.split(",") as TriadInversion[])
+    : (["fundamental"] as TriadInversion[]);
+    
+  const initialQualities = searchParams.get("qualities")
+    ? (searchParams.get("qualities")!.split(",") as TriadQuality[])
+    : (["major", "minor", "sus2", "sus4", "diminished", "augmented"] as TriadQuality[]);
+    
+  const initialIntervals = searchParams.get("intervals")
+    ? (searchParams.get("intervals")!.split(",") as IntervalSymbol[])
+    : allIntervalValues;
+
+  const [selectedMode,       setSelectedMode]       = useState<TrainingMode>(initialMode);
+  const [selectedCount,      setSelectedCount]       = useState<QuestionCount>(initialCount);
+  const [selectedInversions, setSelectedInversions]  = useState<TriadInversion[]>(initialInversions);
+  const [selectedQualities,  setSelectedQualities]   = useState<TriadQuality[]>(initialQualities);
+  const [selectedIntervals,  setSelectedIntervals]   = useState<IntervalSymbol[]>(initialIntervals);
+
+  // Sync state to URL when values change.
+  // We compare against window.location.search (not the searchParams snapshot)
+  // to avoid an infinite loop where updating the URL triggers a re-render that
+  // triggers another update.
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    // Always include mode
+    params.set("mode", selectedMode);
+
+    // Count: omit when it's the default (10)
+    if (selectedCount !== 10) params.set("count", String(selectedCount));
+
+    // Only include params that are relevant to the active mode
+    if (selectedMode === "intervals") {
+      const allSelected = allIntervalValues.every(v => selectedIntervals.includes(v));
+      // Omit when everything is selected (default) — shorter URL
+      if (!allSelected && selectedIntervals.length > 0) {
+        params.set("intervals", selectedIntervals.join(","));
+      }
+    }
+
+    if (selectedMode === "closed-triads") {
+      const allInversions: TriadInversion[] = ["fundamental", "first", "second"];
+      const allInversionsSelected = allInversions.every(v => selectedInversions.includes(v));
+      if (!allInversionsSelected && selectedInversions.length > 0) {
+        params.set("inversions", selectedInversions.join(","));
+      }
+
+      const allQualityValues: TriadQuality[] = ["major", "minor", "sus2", "sus4", "diminished", "augmented"];
+      const allQualitiesSelected = allQualityValues.every(v => selectedQualities.includes(v));
+      if (!allQualitiesSelected && selectedQualities.length > 0) {
+        params.set("qualities", selectedQualities.join(","));
+      }
+    }
+
+    const newQueryString = params.toString();
+    // Use window.location.search to avoid stale-closure loop caused by
+    // including searchParams in the dependency array.
+    const currentQueryString = new URLSearchParams(window.location.search).toString();
+
+    if (newQueryString !== currentQueryString) {
+      router.replace(`${pathname}?${newQueryString}`, { scroll: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMode, selectedCount, selectedInversions, selectedQualities, selectedIntervals]);
 
   const handleStart = () => {
     const qualitiesToPass = selectedQualities.filter(
