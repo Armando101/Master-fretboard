@@ -1,9 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
 import { useLanguage } from "@/i18n/LanguageContext";
+import TutorialModal from "@/shared/components/ui/TutorialModal";
+import HelpButton from "@/shared/components/ui/HelpButton";
+import { useTutorial, isTutorialModule } from "@/shared/hooks/useTutorial";
 
 import TrainingModeCard from "../ui/TrainingModeCard";
 import SessionParameters from "../ui/SessionParameters";
@@ -26,6 +29,7 @@ export default function MainMenuContainer() {
   const pathname = usePathname();
   const startSession = useSessionStore((s) => s.startSession);
   const { t } = useLanguage();
+  const tutorial = useTutorial();
 
   // Default: all intervals selected (every enabled, non-"all" option)
   const allIntervalValues = INTERVAL_OPTIONS
@@ -102,15 +106,14 @@ export default function MainMenuContainer() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMode, selectedCount, selectedInversions, selectedQualities, selectedIntervals]);
 
-  const handleStart = () => {
+  // Extracted session launcher — called after tutorial finishes (or directly if already seen)
+  const launchSession = useCallback(() => {
     const qualitiesToPass = selectedQualities.filter(
       (q): q is Exclude<TriadQuality, "all"> => q !== "all"
     );
     const inversionsToPass = selectedInversions.filter(
       (i): i is MusicTriadInversion => i !== "all"
     );
-    // For intervals: filter out the "all" sentinel and only pass symbols that
-    // actually exist in INTERVAL_POOL (guard against stale state)
     const intervalSymbolsToPass = selectedIntervals
       .filter((s): s is Exclude<IntervalSymbol, "all"> => s !== "all")
       .filter((s) => INTERVAL_POOL.includes(s));
@@ -123,11 +126,56 @@ export default function MainMenuContainer() {
       intervalSymbols: intervalSymbolsToPass,
     });
     router.push("/trainer");
+  }, [selectedMode, selectedCount, selectedInversions, selectedQualities, selectedIntervals, startSession, router]);
+
+  const handleStart = () => {
+    // If the current mode has a tutorial and the user hasn't seen it yet, show it first.
+    // STORAGE_KEYS: intervals -> "tutorial_intervals_seen", closed-triads -> "tutorial_triads_seen", scales -> "tutorial_scales_seen"
+    if (isTutorialModule(selectedMode)) {
+      const storageKey =
+        selectedMode === "intervals"     ? "tutorial_intervals_seen" :
+        selectedMode === "closed-triads" ? "tutorial_triads_seen"    :
+        "tutorial_scales_seen";
+      const alreadySeen = localStorage.getItem(storageKey) === "true";
+      if (!alreadySeen) {
+        tutorial.openAuto(selectedMode);
+        return; // wait for user to finish tutorial — launchSession is wired to onFinish
+      }
+    }
+    launchSession();
   };
+
+
+  // Color accent per mode for HelpButton
+  const modeAccentColor = selectedMode === "closed-triads"
+    ? "#ffe2ab"
+    : selectedMode === "scales"
+    ? "#4edea3"
+    : "#9ecaff";
 
   return (
     <>
       <TopAppBar />
+
+      {/* ── Tutorial Modal ── */}
+      {tutorial.activeModule && (
+        <TutorialModal
+          isOpen={tutorial.isOpen}
+          module={tutorial.activeModule}
+          isManual={tutorial.isManual}
+          onClose={tutorial.close}
+          onDontShowAgain={tutorial.closeAndDontShow}
+          onFinish={launchSession}
+        />
+      )}
+
+      {/* ── Help Button (only for tutorial-enabled modules) ── */}
+      {isTutorialModule(selectedMode) && (
+        <HelpButton
+          onClick={() => tutorial.openManual(selectedMode)}
+          color={modeAccentColor}
+        />
+      )}
 
       {/* Decorative fretboard string accents */}
       <div className="fixed bottom-24 left-0 w-full h-[1px] bg-[#393939]/20 z-0 pointer-events-none" />

@@ -4,6 +4,9 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopAppBar from "@/shared/components/ui/TopAppBar";
 import { useLanguage } from "@/i18n/LanguageContext";
+import TutorialModal from "@/shared/components/ui/TutorialModal";
+import HelpButton from "@/shared/components/ui/HelpButton";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 
 import FretboardGrid from "../ui/FretboardGrid";
 import FeedbackBanner from "../ui/FeedbackBanner";
@@ -30,6 +33,7 @@ export default function TrainerContainer() {
   const router = useRouter();
   const { t } = useLanguage();
   const tr = t.trainer;
+  const tutorial = useTutorial();
 
   const {
     phase,
@@ -245,6 +249,36 @@ export default function TrainerContainer() {
   return (
     <>
       <TopAppBar />
+
+      {/* ── Tutorial Modal (manual help — no "don't show again") ── */}
+      {tutorial.activeModule && (
+        <TutorialModal
+          isOpen={tutorial.isOpen}
+          module={tutorial.activeModule}
+          isManual={true}
+          onClose={tutorial.close}
+          onDontShowAgain={tutorial.closeAndDontShow}
+        />
+      )}
+
+      {/* ── Help Button ── */}
+      {(() => {
+        // Map question kind → training mode for the tutorial system
+        const tutorialModule =
+          questionKind === "interval" ? "intervals" as const :
+          questionKind === "triad"    ? "closed-triads" as const :
+          questionKind === "scale"    ? "scales" as const : null;
+        if (!tutorialModule) return null;
+        const helpColor =
+          questionKind === "triad"  ? "#ffe2ab" :
+          questionKind === "scale"  ? "#4edea3" : "#9ecaff";
+        return (
+          <HelpButton
+            onClick={() => tutorial.openManual(tutorialModule)}
+            color={helpColor}
+          />
+        );
+      })()}
 
       <main className="pt-24 pb-48 lg:pb-32 px-4 md:px-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* ── Left Column ── */}
